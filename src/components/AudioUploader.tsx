@@ -136,18 +136,19 @@ export const AudioUploader = ({ onTranscriptionStart, apiStatus }: AudioUploader
     setIsTranscribing(true);
     setTranscriptionProgress(0);
 
-    // Simulate transcription progress
-    const progressInterval = setInterval(() => {
-      setTranscriptionProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(progressInterval);
-          setIsTranscribing(false);
-          onTranscriptionStart(audioFile);
-          return 100;
-        }
-        return prev + Math.random() * 15;
+    try {
+      await onTranscriptionStart(audioFile);
+    } catch (error) {
+      console.error('Transcription failed:', error);
+      toast({
+        title: "Transcription Failed",
+        description: error instanceof Error ? error.message : "An error occurred during transcription",
+        variant: "destructive"
       });
-    }, 500);
+    } finally {
+      setIsTranscribing(false);
+      setTranscriptionProgress(0);
+    }
   };
 
   return (

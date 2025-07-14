@@ -29,11 +29,26 @@ export const ApiSetup = ({ onApiKeyChange }: ApiSetupProps) => {
     setIsValidating(true);
     
     try {
-      // Simulate API validation (replace with actual Gemini API validation)
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // For demo, assume validation passes if key starts with 'AIza'
-      if (apiKey.startsWith('AIza')) {
+      // Test the API key with a simple request to Gemini
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: "Hello"
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.1,
+            maxOutputTokens: 10,
+          }
+        }),
+      });
+
+      if (response.ok) {
         setStatus('ready');
         onApiKeyChange(apiKey, 'ready');
         
@@ -46,12 +61,13 @@ export const ApiSetup = ({ onApiKeyChange }: ApiSetupProps) => {
           variant: "default"
         });
       } else {
+        const errorData = await response.json();
         setStatus('error');
         onApiKeyChange(apiKey, 'error');
         
         toast({
           title: "Invalid API Key",
-          description: "Please check your Gemini API key and try again",
+          description: errorData.error?.message || "Please check your Gemini API key and try again",
           variant: "destructive"
         });
       }
@@ -61,7 +77,7 @@ export const ApiSetup = ({ onApiKeyChange }: ApiSetupProps) => {
       
       toast({
         title: "Validation Failed",
-        description: "Failed to validate API key. Please try again.",
+        description: "Failed to validate API key. Please check your internet connection.",
         variant: "destructive"
       });
     } finally {

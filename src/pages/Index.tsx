@@ -4,8 +4,10 @@ import { HeroSection } from "@/components/HeroSection";
 import { ApiSetup } from "@/components/ApiSetup";
 import { AudioUploader } from "@/components/AudioUploader";
 import { TranscriptionResults } from "@/components/TranscriptionResults";
+import { TranscriptionHistory } from "@/components/TranscriptionHistory";
 import { FeaturesSection } from "@/components/FeaturesSection";
 import { Footer } from "@/components/Footer";
+import { transcribeAudio } from "@/lib/transcription";
 
 interface AudioFile {
   file: File;
@@ -69,37 +71,21 @@ const Index = () => {
   };
 
   const handleTranscriptionStart = async (audioFile: AudioFile) => {
-    // Simulate AI transcription (replace with actual Gemini API call)
-    const mockTranscription = `This is a demonstration of the AI transcription system. The audio file "${audioFile.file.name}" has been processed using advanced artificial intelligence algorithms. The system automatically detected the language and converted the speech to text with high accuracy. This technology enables quick and efficient transcription of audio content for various professional applications including meetings, interviews, lectures, and content creation.`;
+    try {
+      const result = await transcribeAudio(audioFile, (progress) => {
+        // Progress is handled internally by the transcription function
+        console.log(`Transcription progress: ${progress}%`);
+      });
+      
+      setTranscriptionResult(result);
+    } catch (error) {
+      console.error('Transcription failed:', error);
+      throw error; // Re-throw to be handled by AudioUploader
+    }
+  };
 
-    const wordCount = mockTranscription.split(' ').length;
-    const charCount = mockTranscription.length;
-    
-    // Detect language based on file name or content (mock detection)
-    const detectLanguage = () => {
-      const fileName = audioFile.file.name.toLowerCase();
-      if (fileName.includes('thai') || fileName.includes('ไทย')) return 'Thai';
-      if (fileName.includes('japan') || fileName.includes('jp')) return 'Japanese';
-      return 'English';
-    };
-
-    const result: TranscriptionResult = {
-      fileName: audioFile.file.name,
-      duration: audioFile.duration ? `${Math.floor(audioFile.duration / 60)}:${Math.floor(audioFile.duration % 60).toString().padStart(2, '0')}` : '0:00',
-      language: detectLanguage(),
-      text: mockTranscription,
-      timestamp: new Date().toLocaleString(),
-      audioUrl: audioFile.url,
-      wordCount,
-      charCount
-    };
-
+  const handleLoadTranscription = (result: TranscriptionResult) => {
     setTranscriptionResult(result);
-
-    // Save to local storage history
-    const history = JSON.parse(localStorage.getItem('transcription_history') || '[]');
-    history.unshift(result);
-    localStorage.setItem('transcription_history', JSON.stringify(history.slice(0, 100))); // Keep last 100
   };
 
   return (
@@ -136,6 +122,15 @@ const Index = () => {
             <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
               <TranscriptionResults result={transcriptionResult} />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Transcription History Section */}
+      <section className="py-12 bg-muted/30">
+        <div className="container px-4">
+          <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            <TranscriptionHistory onLoadTranscription={handleLoadTranscription} />
           </div>
         </div>
       </section>
