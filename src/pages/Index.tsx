@@ -143,6 +143,7 @@ const Index = () => {
       {/* Footer */}
       <Footer />
     </div>
+  )
   );
 };
 
