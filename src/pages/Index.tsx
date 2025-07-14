@@ -101,7 +101,7 @@ const Index = () => {
       <HeroSection />
 
       {/* Main Dashboard */}
-      <section className="py-12 bg-background">
+      <section className="py-5 bg-background">
         <div className="container px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Left Panel - Settings */}
@@ -127,7 +127,7 @@ const Index = () => {
       </section>
 
       {/* Transcription History Section */}
-      <section className="py-12 bg-muted/30">
+      <section className="pt-5 pb-12 bg-muted/30">
         <div className="container px-4">
           <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
             <TranscriptionHistory onLoadTranscription={handleLoadTranscription} />
