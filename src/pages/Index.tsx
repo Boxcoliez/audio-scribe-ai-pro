@@ -24,6 +24,7 @@ interface TranscriptionResult {
   timestamp: string;
   audioUrl: string;
   wordCount: number;
+  charCount: number;
 }
 
 const Index = () => {
@@ -114,11 +115,6 @@ const Index = () => {
                   onTranscriptionStart={handleTranscriptionStart}
                   apiStatus={apiStatus}
                 />
-              
-                <TranscriptionHistory 
-                  onLoadTranscription={handleLoadTranscription}
-                  latestResult={transcriptionResult}
-                />
               </div>
             </div>
 
@@ -145,7 +141,7 @@ const Index = () => {
       {/* Footer */}
       <Footer />
     </div>
-  )
+  );
 };
 
 export default Index;
