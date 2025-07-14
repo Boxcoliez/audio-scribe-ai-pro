@@ -110,14 +110,17 @@ const Index = () => {
               </div>
               
               <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                <AudioUploader 
-                  onTranscriptionStart={handleTranscriptionStart}
-                  apiStatus={apiStatus}
-                <TranscriptionHistory 
-                  onLoadTranscription={handleLoadTranscription}
-                  latestResult={transcriptionResult}
-                />
-              </div>
+  <AudioUploader 
+    onTranscriptionStart={handleTranscriptionStart}
+    apiStatus={apiStatus}
+  />
+
+  <TranscriptionHistory 
+    onLoadTranscription={handleLoadTranscription}
+    latestResult={transcriptionResult}
+  />
+</div>
+
             </div>
 
             {/* Right Panel - Results */}
