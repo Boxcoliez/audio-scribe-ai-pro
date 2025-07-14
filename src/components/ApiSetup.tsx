@@ -112,7 +112,7 @@ export const ApiSetup = ({ onApiKeyChange }: ApiSetupProps) => {
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full" data-api-setup>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>

@@ -14,7 +14,6 @@ interface TranscriptionResult {
   timestamp: string;
   audioUrl: string;
   wordCount: number;
-  charCount: number;
 }
 
 interface TranscriptionResultsProps {
@@ -221,15 +220,7 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
         </div>
 
         {/* Statistics */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="text-center p-4 rounded-lg bg-card border border-border/50">
-            <div className="flex items-center justify-center space-x-1 mb-1">
-              <Hash className="h-4 w-4 text-primary" />
-              <span className="font-semibold text-lg">{result.charCount}</span>
-            </div>
-            <div className="text-xs text-muted-foreground">Characters</div>
-          </div>
-          
+        <div className="grid grid-cols-2 gap-4">
           <div className="text-center p-4 rounded-lg bg-card border border-border/50">
             <div className="flex items-center justify-center space-x-1 mb-1">
               <FileText className="h-4 w-4 text-primary" />

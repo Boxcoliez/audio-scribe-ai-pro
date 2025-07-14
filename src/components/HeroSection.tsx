@@ -52,7 +52,17 @@ export const HeroSection = () => {
 
           {/* CTA Section */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8 animate-scale-in">
-            <Button variant="hero" size="xl" className="group">
+            <Button 
+              variant="hero" 
+              size="xl" 
+              className="group"
+              onClick={() => {
+                const apiSection = document.querySelector('[data-api-setup]');
+                if (apiSection) {
+                  apiSection.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            >
               <Mic2 className="h-5 w-5 group-hover:animate-pulse" />
               Start Transcribing Now
               <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />

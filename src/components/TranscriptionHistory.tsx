@@ -32,14 +32,14 @@ interface TranscriptionResult {
   timestamp: string;
   audioUrl: string;
   wordCount: number;
-  charCount: number;
 }
 
 interface TranscriptionHistoryProps {
   onLoadTranscription: (result: TranscriptionResult) => void;
+  latestResult?: TranscriptionResult | null;
 }
 
-export const TranscriptionHistory = ({ onLoadTranscription }: TranscriptionHistoryProps) => {
+export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: TranscriptionHistoryProps) => {
   const [history, setHistory] = useState<TranscriptionResult[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [languageFilter, setLanguageFilter] = useState<string>('all');
@@ -57,6 +57,26 @@ export const TranscriptionHistory = ({ onLoadTranscription }: TranscriptionHisto
       setHistory(JSON.parse(savedHistory));
     }
   }, []);
+
+  // Update history when new transcription is completed
+  useEffect(() => {
+    if (latestResult) {
+      setHistory(prevHistory => {
+        // Check if this result already exists to avoid duplicates
+        const exists = prevHistory.some(item => 
+          item.fileName === latestResult.fileName && 
+          item.timestamp === latestResult.timestamp
+        );
+        
+        if (!exists) {
+          const updatedHistory = [latestResult, ...prevHistory].slice(0, 100);
+          localStorage.setItem('transcription_history', JSON.stringify(updatedHistory));
+          return updatedHistory;
+        }
+        return prevHistory;
+      });
+    }
+  }, [latestResult]);
 
   // Get unique languages from history
   const availableLanguages = useMemo(() => {
@@ -386,7 +406,7 @@ export const TranscriptionHistory = ({ onLoadTranscription }: TranscriptionHisto
                           <span>{new Date(item.timestamp).toLocaleDateString()}</span>
                         </div>
                         <div>
-                          Duration: {item.duration} | {item.wordCount} words
+                          Duration: {item.duration} • {item.wordCount} words
                         </div>
                       </div>
                       
@@ -429,7 +449,7 @@ export const TranscriptionHistory = ({ onLoadTranscription }: TranscriptionHisto
                         />
                         <div className="flex justify-between">
                           <div className="text-sm text-muted-foreground">
-                            {item.wordCount} words • {item.charCount} characters
+                            {item.wordCount} words
                           </div>
                           <Button onClick={() => onLoadTranscription(item)}>
                             Load This Transcription

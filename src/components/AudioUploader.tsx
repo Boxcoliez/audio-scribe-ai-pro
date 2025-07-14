@@ -138,6 +138,8 @@ export const AudioUploader = ({ onTranscriptionStart, apiStatus }: AudioUploader
 
     try {
       await onTranscriptionStart(audioFile);
+      // Clear the audio file after successful transcription start
+      removeFile();
     } catch (error) {
       console.error('Transcription failed:', error);
       toast({
