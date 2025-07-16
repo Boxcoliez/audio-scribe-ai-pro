@@ -501,7 +501,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                           {getLanguageFlag(item.language)} {item.language}
                         </Badge>
                         {item.downloaded && (
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge className="text-xs bg-blue-100 text-blue-800">
                             Downloaded
                           </Badge>
                         )}
