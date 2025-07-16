@@ -1,11 +1,20 @@
 import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
-import { HeroSection } from "@/components/HeroSection";
-import { FeaturesSection } from "@/components/FeaturesSection";
+import { TranscriptionHistory } from "@/components/TranscriptionHistory";
 import { Footer } from "@/components/Footer";
 
+interface TranscriptionResult {
+  fileName: string;
+  duration: string;
+  language: string;
+  text: string;
+  timestamp: string;
+  audioUrl: string;
+  wordCount: number;
+  charCount: number;
+}
 
-const Index = () => {
+const History = () => {
   const [apiStatus, setApiStatus] = useState<'ready' | 'pending' | 'error'>('pending');
   const [isDark, setIsDark] = useState(false);
 
@@ -43,29 +52,41 @@ const Index = () => {
     }
   };
 
-  const handleApiKeyChange = (key: string, status: 'ready' | 'pending' | 'error') => {
-    setApiStatus(status);
+  const handleLoadTranscription = (result: TranscriptionResult) => {
+    // Store the selected result for viewing
+    sessionStorage.setItem('selected_transcription', JSON.stringify(result));
   };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <Header 
         apiStatus={apiStatus} 
         onThemeToggle={handleThemeToggle}
         isDark={isDark}
       />
-
-      {/* Hero Section */}
-      <HeroSection />
-
-      {/* Features Section */}
-      <FeaturesSection />
-
-      {/* Footer */}
+      
+      <main className="py-12">
+        <div className="container px-4">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold mb-4">
+              <span className="bg-gradient-primary bg-clip-text text-transparent">
+                Transcription History
+              </span>
+            </h1>
+            <p className="text-muted-foreground">
+              View, manage, and download your previous transcriptions
+            </p>
+          </div>
+          
+          <div className="animate-fade-in max-w-6xl mx-auto">
+            <TranscriptionHistory onLoadTranscription={handleLoadTranscription} />
+          </div>
+        </div>
+      </main>
+      
       <Footer />
     </div>
   );
 };
 
-export default Index;
+export default History;

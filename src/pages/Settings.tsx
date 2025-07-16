@@ -1,11 +1,9 @@
-import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
-import { HeroSection } from "@/components/HeroSection";
-import { FeaturesSection } from "@/components/FeaturesSection";
+import { ApiSetup } from "@/components/ApiSetup";
 import { Footer } from "@/components/Footer";
+import { useState, useEffect } from "react";
 
-
-const Index = () => {
+const Settings = () => {
   const [apiStatus, setApiStatus] = useState<'ready' | 'pending' | 'error'>('pending');
   const [isDark, setIsDark] = useState(false);
 
@@ -49,23 +47,34 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <Header 
         apiStatus={apiStatus} 
         onThemeToggle={handleThemeToggle}
         isDark={isDark}
       />
-
-      {/* Hero Section */}
-      <HeroSection />
-
-      {/* Features Section */}
-      <FeaturesSection />
-
-      {/* Footer */}
+      
+      <main className="py-12">
+        <div className="container px-4 max-w-2xl mx-auto">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold mb-4">
+              <span className="bg-gradient-primary bg-clip-text text-transparent">
+                API Configuration
+              </span>
+            </h1>
+            <p className="text-muted-foreground">
+              Configure your Gemini API key to start transcribing audio files
+            </p>
+          </div>
+          
+          <div className="animate-fade-in">
+            <ApiSetup onApiKeyChange={handleApiKeyChange} />
+          </div>
+        </div>
+      </main>
+      
       <Footer />
     </div>
   );
 };
 
-export default Index;
+export default Settings;

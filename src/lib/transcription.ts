@@ -213,6 +213,7 @@ export const transcribeAudio = async (
     timestamp: new Date().toLocaleString(),
     audioUrl: audioFile.url,
     wordCount,
+    charCount: transcribedText.length,
   };
 
   onProgress(100);

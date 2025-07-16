@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Mic2, Sparkles, Shield, Globe } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-bg.jpg";
 
 export const HeroSection = () => {
+  const navigate = useNavigate();
   return (
     <section className="relative overflow-hidden">
       {/* Background */}
@@ -53,22 +55,20 @@ export const HeroSection = () => {
           {/* CTA Section */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8 animate-scale-in">
             <Button 
-              variant="hero" 
-              size="xl" 
-              className="group"
-              onClick={() => {
-                const apiSection = document.querySelector('[data-api-setup]');
-                if (apiSection) {
-                  apiSection.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
+              size="lg" 
+              className="px-8 py-6 text-lg font-semibold group"
+              onClick={() => navigate('/settings')}
             >
-              <Mic2 className="h-5 w-5 group-hover:animate-pulse" />
-              Start Transcribing Now
-              <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              <Mic2 className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+              Start Transcription Now
             </Button>
             
-            <Button variant="outline" size="xl" className="hover:bg-card/50 backdrop-blur-sm">
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="px-8 py-6 text-lg"
+              onClick={() => navigate('/transcription')}
+            >
               View Demo
             </Button>
           </div>

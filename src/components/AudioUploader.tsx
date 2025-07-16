@@ -137,9 +137,24 @@ export const AudioUploader = ({ onTranscriptionStart, apiStatus }: AudioUploader
     setTranscriptionProgress(0);
 
     try {
+      // Simulate progress from 0 to 100%
+      const progressInterval = setInterval(() => {
+        setTranscriptionProgress(prev => {
+          if (prev >= 95) {
+            clearInterval(progressInterval);
+            return prev;
+          }
+          return prev + Math.random() * 10;
+        });
+      }, 200);
+
       await onTranscriptionStart(audioFile);
-      // Clear the audio file after successful transcription start
-      removeFile();
+      
+      clearInterval(progressInterval);
+      setTranscriptionProgress(100);
+      
+      // Clear the audio file after successful transcription
+      setTimeout(() => removeFile(), 1000);
     } catch (error) {
       console.error('Transcription failed:', error);
       toast({

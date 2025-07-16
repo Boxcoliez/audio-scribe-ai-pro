@@ -1,25 +1,35 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Zap, Globe, Shield, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Zap, Globe, Shield, CheckCircle, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export const FeaturesSection = () => {
+  const navigate = useNavigate();
+  
   const features = [
     {
       icon: Zap,
-      title: "Lightning Fast Processing",
+      title: "Transcription",
       description: "Convert audio files to text within seconds using advanced AI algorithms",
-      highlights: ["< 30 second processing", "Real-time transcription", "Optimized for speed"]
-    },
-    {
-      icon: Globe,
-      title: "Multi-Language Support", 
-      description: "Automatic detection and processing of Thai, English, Japanese, and 50+ languages",
-      highlights: ["Auto language detection", "50+ languages", "High accuracy rates"]
+      highlights: ["< 30 second processing", "Real-time transcription", "Optimized for speed"],
+      action: "Start Transcribing",
+      path: "/settings"
     },
     {
       icon: Shield,
-      title: "Enterprise Security",
-      description: "Your data is protected with the highest security standards and privacy controls",
-      highlights: ["End-to-end encryption", "No data retention", "GDPR compliant"]
+      title: "History", 
+      description: "View, manage, and download your previous transcriptions with advanced filtering",
+      highlights: ["Advanced filtering", "Bulk download", "Easy management"],
+      action: "View History",
+      path: "/history"
+    },
+    {
+      icon: Globe,
+      title: "Settings",
+      description: "Configure your API settings and preferences for optimal transcription experience",
+      highlights: ["API configuration", "Multi-language support", "Custom preferences"],
+      action: "Configure Settings",
+      path: "/settings"
     }
   ];
 
@@ -43,7 +53,8 @@ export const FeaturesSection = () => {
           {features.map((feature, index) => (
             <Card 
               key={index} 
-              className="relative overflow-hidden group hover:shadow-card transition-all duration-300 hover:-translate-y-2"
+              className="relative overflow-hidden group hover:shadow-card transition-all duration-300 hover:-translate-y-2 cursor-pointer"
+              onClick={() => navigate(feature.path)}
             >
               <CardContent className="p-8">
                 {/* Icon */}
@@ -62,7 +73,7 @@ export const FeaturesSection = () => {
                   </p>
                   
                   {/* Highlights */}
-                  <div className="space-y-2">
+                  <div className="space-y-2 mb-6">
                     {feature.highlights.map((highlight, idx) => (
                       <div key={idx} className="flex items-center space-x-2">
                         <CheckCircle className="h-4 w-4 text-success flex-shrink-0" />
@@ -70,6 +81,18 @@ export const FeaturesSection = () => {
                       </div>
                     ))}
                   </div>
+                  
+                  {/* Action Button */}
+                  <Button 
+                    className="w-full group-hover:scale-105 transition-transform duration-200"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(feature.path);
+                    }}
+                  >
+                    {feature.action}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
                 </div>
               </CardContent>
               

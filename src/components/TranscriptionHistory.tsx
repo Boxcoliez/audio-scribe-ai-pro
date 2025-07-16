@@ -20,7 +20,10 @@ import {
   Pause,
   CheckSquare,
   Square,
-  Eye
+  Eye,
+  Edit2,
+  Check,
+  X
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -32,6 +35,8 @@ interface TranscriptionResult {
   timestamp: string;
   audioUrl: string;
   wordCount: number;
+  charCount: number;
+  downloaded?: boolean;
 }
 
 interface TranscriptionHistoryProps {
@@ -48,6 +53,8 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
   const [selectedItem, setSelectedItem] = useState<TranscriptionResult | null>(null);
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editingName, setEditingName] = useState('');
   const { toast } = useToast();
 
   // Load history from localStorage
@@ -181,6 +188,60 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
     });
   };
 
+  const handleDeleteSingle = (index: number) => {
+    const itemToDelete = filteredHistory[index];
+    const originalIndex = history.findIndex(item => 
+      item.timestamp === itemToDelete.timestamp && item.fileName === itemToDelete.fileName
+    );
+    
+    if (originalIndex !== -1) {
+      const updatedHistory = history.filter((_, idx) => idx !== originalIndex);
+      setHistory(updatedHistory);
+      localStorage.setItem('transcription_history', JSON.stringify(updatedHistory));
+      
+      toast({
+        title: "Item Deleted",
+        description: "Transcription deleted successfully",
+        variant: "default"
+      });
+    }
+  };
+
+  const handleEditName = (index: number) => {
+    const item = filteredHistory[index];
+    setEditingIndex(index);
+    setEditingName(item.fileName);
+  };
+
+  const handleSaveEdit = (index: number) => {
+    if (editingName.trim()) {
+      const itemToEdit = filteredHistory[index];
+      const originalIndex = history.findIndex(item => 
+        item.timestamp === itemToEdit.timestamp && item.fileName === itemToEdit.fileName
+      );
+      
+      if (originalIndex !== -1) {
+        const updatedHistory = [...history];
+        updatedHistory[originalIndex] = { ...updatedHistory[originalIndex], fileName: editingName.trim() };
+        setHistory(updatedHistory);
+        localStorage.setItem('transcription_history', JSON.stringify(updatedHistory));
+        
+        toast({
+          title: "Name Updated",
+          description: "File name updated successfully",
+          variant: "default"
+        });
+      }
+    }
+    setEditingIndex(null);
+    setEditingName('');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingIndex(null);
+    setEditingName('');
+  };
+
   const handleDownloadSelected = () => {
     const selectedIndices = Array.from(selectedItems);
     const selectedTranscriptions = selectedIndices.map(index => filteredHistory[index]);
@@ -190,7 +251,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
       `Date: ${item.timestamp}\n` +
       `Language: ${item.language}\n` +
       `Duration: ${item.duration}\n` +
-      `Words: ${item.wordCount} | Characters: ${item.charCount}\n\n` +
+      `Words: ${item.wordCount} | Characters: ${item.charCount || item.text.length}\n\n` +
       `Transcription:\n${item.text}\n\n` +
       `${'='.repeat(80)}\n\n`
     ).join('');
@@ -204,6 +265,16 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+
+    // Mark items as downloaded
+    const updatedHistory = history.map(item => {
+      const isSelected = selectedTranscriptions.some(selected => 
+        selected.timestamp === item.timestamp && selected.fileName === item.fileName
+      );
+      return isSelected ? { ...item, downloaded: true } : item;
+    });
+    setHistory(updatedHistory);
+    localStorage.setItem('transcription_history', JSON.stringify(updatedHistory));
 
     toast({
       title: "Download Started",
@@ -394,10 +465,46 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2 mb-2">
                         <FileText className="h-4 w-4 text-primary flex-shrink-0" />
-                        <h4 className="font-medium text-sm truncate">{item.fileName}</h4>
+                        {editingIndex === index ? (
+                          <div className="flex items-center space-x-2 flex-1">
+                            <Input
+                              value={editingName}
+                              onChange={(e) => setEditingName(e.target.value)}
+                              className="h-6 text-sm"
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleSaveEdit(index);
+                                if (e.key === 'Escape') handleCancelEdit();
+                              }}
+                              autoFocus
+                            />
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleSaveEdit(index)}
+                              className="h-6 w-6 p-0"
+                            >
+                              <Check className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={handleCancelEdit}
+                              className="h-6 w-6 p-0"
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <h4 className="font-medium text-sm truncate">{item.fileName}</h4>
+                        )}
                         <Badge variant="outline" className="text-xs">
                           {getLanguageFlag(item.language)} {item.language}
                         </Badge>
+                        {item.downloaded && (
+                          <Badge variant="secondary" className="text-xs">
+                            Downloaded
+                          </Badge>
+                        )}
                       </div>
                       
                       <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground mb-2">
@@ -417,6 +524,15 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                   </div>
                   
                   <div className="flex items-center space-x-1 ml-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEditName(index)}
+                      disabled={editingIndex === index}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    
                     <Button
                       variant="ghost"
                       size="sm"
@@ -457,6 +573,15 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                         </div>
                       </DialogContent>
                     </Dialog>
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteSingle(index)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
                 
