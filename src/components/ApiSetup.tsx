@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Key, CheckCircle, AlertCircle, ExternalLink } from "lucide-react";
+import { Key, CheckCircle, AlertCircle, ExternalLink, ArrowRight, FileAudio } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface ApiSetupProps {
   onApiKeyChange: (key: string, status: 'ready' | 'pending' | 'error') => void;
@@ -15,6 +16,7 @@ export const ApiSetup = ({ onApiKeyChange }: ApiSetupProps) => {
   const [isValidating, setIsValidating] = useState(false);
   const [status, setStatus] = useState<'idle' | 'ready' | 'error'>('idle');
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const validateApiKey = async () => {
     if (!apiKey.trim()) {
@@ -199,6 +201,28 @@ export const ApiSetup = ({ onApiKeyChange }: ApiSetupProps) => {
             <div className="text-xs text-muted-foreground">99.5%+ precision</div>
           </div>
         </div>
+
+        {/* Navigation to Transcription - Only shown after successful validation */}
+        {status === 'ready' && (
+          <div className="p-4 rounded-lg bg-gradient-primary/10 border border-primary/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium text-sm text-primary">Ready to Start!</h4>
+                <p className="text-sm text-muted-foreground">
+                  Your API is configured. Start transcribing audio files now.
+                </p>
+              </div>
+              <Button 
+                onClick={() => navigate('/transcription')}
+                className="flex items-center space-x-2"
+              >
+                <FileAudio className="h-4 w-4" />
+                <span>Start Transcribing</span>
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
