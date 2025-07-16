@@ -5,6 +5,7 @@ import heroImage from "@/assets/hero-bg.jpg";
 
 export const HeroSection = () => {
   const navigate = useNavigate();
+  
   return (
     <section className="relative overflow-hidden">
       {/* Background */}
