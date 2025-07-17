@@ -1,53 +1,60 @@
+
 import { Mic } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const Footer = () => {
+  const { t } = useLanguage();
+
   return (
-    <footer className="border-t border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container px-4 py-12">
-        <div className="text-center space-y-6">
-          {/* Logo */}
-          <div className="flex items-center justify-center space-x-2">
-            <div className="relative">
-              <Mic className="h-8 w-8 text-primary" />
-              <div className="absolute inset-0 bg-primary/20 rounded-full blur-md" />
+    <footer className="bg-card border-t border-border/50">
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid md:grid-cols-4 gap-8">
+          {/* Brand */}
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Mic className="h-6 w-6 text-primary" />
+              <span className="text-lg font-bold bg-gradient-primary bg-clip-text text-transparent">
+                {t('header.title')}
+              </span>
             </div>
-            <span className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Botnoi Transcription 
-            </span>
-          </div>
-
-          {/* Description */}
-          <div className="max-w-2xl mx-auto space-y-2">
-            <p className="text-lg font-medium">
-              Powered by Gemini AI • Built by Professional Development Team
-            </p>
-            <p className="text-muted-foreground">
-              Multi-language audio transcription • High accuracy • Lightning fast processing
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {t('footer.description')}
             </p>
           </div>
 
-          {/* Features */}
-          <div className="flex flex-wrap justify-center gap-4 py-6">
-            <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-gradient-hero border border-border/50">
-              <div className="w-2 h-2 bg-success rounded-full animate-pulse" />
-              <span className="text-sm">99.5% Accuracy</span>
-            </div>
-            <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-gradient-hero border border-border/50">
-              <div className="w-2 h-2 bg-studio-blue rounded-full animate-pulse" />
-              <span className="text-sm">50+ Languages</span>
-            </div>
-            <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-gradient-hero border border-border/50">
-              <div className="w-2 h-2 bg-studio-violet rounded-full animate-pulse" />
-              <span className="text-sm">Enterprise Security</span>
-            </div>
+          {/* Quick Links */}
+          <div>
+            <h3 className="font-semibold mb-4 text-foreground">{t('footer.quickLinks')}</h3>
+            <ul className="space-y-2 text-sm">
+              <li><a href="/" className="text-muted-foreground hover:text-primary transition-colors">{t('footer.home')}</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">{t('footer.about')}</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">{t('footer.contact')}</a></li>
+            </ul>
           </div>
 
-          {/* Copyright */}
-          <div className="pt-6 border-t border-border/40">
-            <p className="text-sm text-muted-foreground">
-              © 2024 Botnoi Transcription . Powered by advanced AI technology.
-            </p>
+          {/* Support */}
+          <div>
+            <h3 className="font-semibold mb-4 text-foreground">{t('footer.support')}</h3>
+            <ul className="space-y-2 text-sm">
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">{t('footer.help')}</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">{t('footer.documentation')}</a></li>
+            </ul>
           </div>
+
+          {/* Legal */}
+          <div>
+            <h3 className="font-semibold mb-4 text-foreground">{t('footer.legal')}</h3>
+            <ul className="space-y-2 text-sm">
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">{t('footer.privacy')}</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">{t('footer.terms')}</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="border-t border-border/50 mt-8 pt-8 text-center">
+          <p className="text-sm text-muted-foreground">
+            © 2024 {t('header.title')}. {t('footer.rights')}
+          </p>
         </div>
       </div>
     </footer>

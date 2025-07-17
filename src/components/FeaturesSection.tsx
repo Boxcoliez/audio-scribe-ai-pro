@@ -1,133 +1,87 @@
-import { Card, CardContent } from "@/components/ui/card";
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Zap, Globe, Shield, CheckCircle, ArrowRight } from "lucide-react";
+import { Zap, Shield, Globe, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const FeaturesSection = () => {
   const navigate = useNavigate();
-  
+  const { t } = useLanguage();
+
   const features = [
     {
+      title: t('features.transcription.title'),
+      description: t('features.transcription.description'),
       icon: Zap,
-      title: "Transcription",
-      description: "Convert audio files to text within seconds using advanced AI algorithms",
-      highlights: ["< 30 second processing", "Real-time transcription", "Optimized for speed"],
-      action: "Start Transcribing",
-      path: "/settings"
+      gradient: "from-studio-blue to-studio-cyan",
+      onClick: () => navigate('/transcription')
     },
     {
+      title: t('features.history.title'),
+      description: t('features.history.description'),
       icon: Shield,
-      title: "History", 
-      description: "View, manage, and download your previous transcriptions with advanced filtering",
-      highlights: ["Advanced filtering", "Bulk download", "Easy management"],
-      action: "View History",
-      path: "/history"
+      gradient: "from-studio-violet to-studio-indigo",
+      onClick: () => navigate('/history')
     },
     {
+      title: t('features.settings.title'),
+      description: t('features.settings.description'),
       icon: Globe,
-      title: "Settings",
-      description: "Configure your API settings and preferences for optimal transcription experience",
-      highlights: ["API configuration", "Multi-language support", "Custom preferences"],
-      action: "Configure Settings",
-      path: "/settings"
+      gradient: "from-studio-indigo to-studio-blue",
+      onClick: () => navigate('/settings')
     }
   ];
 
   return (
-    <section className="py-20 bg-gradient-hero">
-      <div className="container px-4">
+    <section className="py-24 bg-background">
+      <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            <span className="bg-gradient-primary bg-clip-text text-transparent">
-              Powerful Features
-            </span>
-            <br />
-            <span className="text-foreground">Built for Professionals</span>
+          <h2 className="text-3xl md:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-4">
+            {t('features.title')}
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Everything you need for professional audio transcription in one powerful platform
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            {t('features.subtitle')}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <Card 
-              key={index} 
-              className="relative overflow-hidden group hover:shadow-card transition-all duration-300 hover:-translate-y-2 cursor-pointer"
-              onClick={() => navigate(feature.path)}
-            >
-              <CardContent className="p-8">
-                {/* Icon */}
-                <div className="relative mb-6">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-primary flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <feature.icon className="h-8 w-8 text-white" />
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {features.map((feature, index) => {
+            const Icon = feature.icon;
+            return (
+              <Card 
+                key={index} 
+                className="group relative overflow-hidden border-border/50 bg-gradient-card hover:shadow-card transition-all duration-300 hover:scale-105 cursor-pointer"
+                onClick={feature.onClick}
+              >
+                <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-5 group-hover:opacity-10 transition-opacity`} />
+                
+                <CardHeader className="relative z-10">
+                  <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${feature.gradient} p-3 mb-4 group-hover:scale-110 transition-transform`}>
+                    <Icon className="w-6 h-6 text-white" />
                   </div>
-                  <div className="absolute inset-0 w-16 h-16 rounded-2xl bg-gradient-primary opacity-20 blur-xl group-hover:opacity-40 transition-opacity duration-300" />
-                </div>
-
-                {/* Content */}
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold">{feature.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">
+                  <CardTitle className="text-xl font-semibold group-hover:text-primary transition-colors">
+                    {feature.title}
+                  </CardTitle>
+                </CardHeader>
+                
+                <CardContent className="relative z-10">
+                  <CardDescription className="text-muted-foreground leading-relaxed mb-4">
                     {feature.description}
-                  </p>
+                  </CardDescription>
                   
-                  {/* Highlights */}
-                  <div className="space-y-2 mb-6">
-                    {feature.highlights.map((highlight, idx) => (
-                      <div key={idx} className="flex items-center space-x-2">
-                        <CheckCircle className="h-4 w-4 text-success flex-shrink-0" />
-                        <span className="text-sm text-muted-foreground">{highlight}</span>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {/* Action Button */}
                   <Button 
-                    className="w-full group-hover:scale-105 transition-transform duration-200"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(feature.path);
-                    }}
+                    variant="ghost" 
+                    size="sm" 
+                    className="group/btn p-0 h-auto font-semibold text-primary hover:text-primary"
                   >
-                    {feature.action}
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    Learn More
+                    <ArrowRight className="ml-1 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
                   </Button>
-                </div>
-              </CardContent>
-              
-              {/* Hover Effect */}
-              <div className="absolute inset-0 bg-gradient-primary opacity-0 group-hover:opacity-5 transition-opacity duration-300" />
-            </Card>
-          ))}
-        </div>
-
-        {/* Stats Section */}
-        <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8">
-          <div className="text-center">
-            <div className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
-              99.5%
-            </div>
-            <div className="text-sm text-muted-foreground">Accuracy Rate</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
-              50+
-            </div>
-            <div className="text-sm text-muted-foreground">Languages</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
-              &lt;30s
-            </div>
-            <div className="text-sm text-muted-foreground">Processing Time</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
-              24/7
-            </div>
-            <div className="text-sm text-muted-foreground">Availability</div>
-          </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </div>
     </section>

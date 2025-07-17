@@ -1,107 +1,64 @@
+
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Mic2, Sparkles, Shield, Globe } from "lucide-react";
+import { ArrowRight, PlayCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import heroImage from "@/assets/hero-bg.jpg";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const HeroSection = () => {
   const navigate = useNavigate();
-  
+  const { t } = useLanguage();
+
   return (
-    <section className="relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0">
-        <img 
-          src={heroImage} 
-          alt="AI Transcription Studio" 
-          className="w-full h-full object-cover opacity-20"
-        />
-        <div className="absolute inset-0 bg-gradient-hero" />
-      </div>
-
+    <section className="relative min-h-[80vh] flex items-center justify-center bg-gradient-hero overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute inset-0 bg-gradient-to-br from-studio-blue/5 via-studio-violet/5 to-studio-indigo/5" />
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-studio-blue/10 rounded-full blur-3xl animate-pulse-glow" />
+      <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-studio-violet/10 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: '2s' }} />
+      
       {/* Content */}
-      <div className="relative container px-4 py-20">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          {/* Feature Pills */}
-          <div className="flex flex-wrap justify-center gap-4 animate-fade-in">
-            <div className="flex items-center space-x-2 px-4 py-2 rounded-full bg-card/80 backdrop-blur-sm border border-border/50 shadow-card">
-              <Sparkles className="h-4 w-4 text-studio-blue animate-pulse-glow" />
-              <span className="text-sm font-medium">Lightning Fast Processing</span>
-            </div>
-            <div className="flex items-center space-x-2 px-4 py-2 rounded-full bg-card/80 backdrop-blur-sm border border-border/50 shadow-card">
-              <Shield className="h-4 w-4 text-studio-violet animate-pulse-glow" />
-              <span className="text-sm font-medium">Enterprise Security</span>
-            </div>
-            <div className="flex items-center space-x-2 px-4 py-2 rounded-full bg-card/80 backdrop-blur-sm border border-border/50 shadow-card">
-              <Globe className="h-4 w-4 text-studio-indigo animate-pulse-glow" />
-              <span className="text-sm font-medium">Multi-Language Support</span>
-            </div>
-          </div>
-
+      <div className="container mx-auto px-4 text-center relative z-10">
+        <div className="max-w-4xl mx-auto space-y-8">
           {/* Main Heading */}
-          <div className="space-y-6 animate-fade-in-up">
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
-              <span className="bg-gradient-primary bg-clip-text text-transparent">
-                BOTNOI
-              </span>
-              <br />
-              <span className="text-foreground">Transcription</span>
+          <div className="space-y-4">
+            <h1 className="text-4xl md:text-6xl font-bold bg-gradient-primary bg-clip-text text-transparent leading-tight">
+              {t('hero.title')}
             </h1>
-            
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Transform your audio files into accurate text with advanced AI technology. 
-              Automatic language detection, lightning-fast processing, and enterprise-grade security.
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              {t('hero.subtitle')}
             </p>
           </div>
 
-          {/* CTA Section */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8 animate-scale-in">
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button 
-              size="lg" 
-              className="px-8 py-6 text-lg font-semibold group"
+              variant="hero" 
               onClick={() => navigate('/settings')}
+              className="group"
             >
-              <Mic2 className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-              Start Transcription Now
+              {t('hero.startNow')}
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Button>
             
             <Button 
               variant="outline" 
-              size="lg" 
-              className="px-8 py-6 text-lg"
-              onClick={() => navigate('/transcription')}
+              size="lg"
+              className="group border-2 hover:bg-accent/20"
             >
-              View Demo
+              <PlayCircle className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+              {t('hero.learnMore')}
             </Button>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-16 animate-fade-in">
-            <div className="text-center space-y-2">
-              <div className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                99.5%
-              </div>
-              <div className="text-muted-foreground">Accuracy Rate</div>
-            </div>
-            <div className="text-center space-y-2">
-              <div className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                &lt;30s
-              </div>
-              <div className="text-muted-foreground">Average Processing</div>
-            </div>
-            <div className="text-center space-y-2">
-              <div className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                50+
-              </div>
-              <div className="text-muted-foreground">Languages Supported</div>
+          {/* Visual Indicator */}
+          <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">
+            <div className="flex space-x-1">
+              <div className="w-2 h-2 bg-studio-blue rounded-full animate-pulse-glow"></div>
+              <div className="w-2 h-2 bg-studio-violet rounded-full animate-pulse-glow" style={{ animationDelay: '0.5s' }}></div>
+              <div className="w-2 h-2 bg-studio-indigo rounded-full animate-pulse-glow" style={{ animationDelay: '1s' }}></div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Floating Elements */}
-      <div className="absolute top-20 left-10 w-20 h-20 bg-studio-blue/10 rounded-full blur-xl animate-float" />
-      <div className="absolute bottom-20 right-10 w-32 h-32 bg-studio-violet/10 rounded-full blur-xl animate-float" style={{ animationDelay: '1s' }} />
-      <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-studio-indigo/10 rounded-full blur-xl animate-float" style={{ animationDelay: '2s' }} />
     </section>
   );
 };
