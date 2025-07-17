@@ -41,7 +41,7 @@ export const HeroSection = () => {
           <div className="space-y-6 animate-fade-in-up">
             <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
               <span className="bg-gradient-primary bg-clip-text text-transparent">
-                Professional Audio
+                BOTNOI
               </span>
               <br />
               <span className="text-foreground">Transcription</span>

@@ -12,7 +12,7 @@ export const Footer = () => {
               <div className="absolute inset-0 bg-primary/20 rounded-full blur-md" />
             </div>
             <span className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              AI Transcription Studio
+              Botnoi Transcription 
             </span>
           </div>
 
@@ -45,7 +45,7 @@ export const Footer = () => {
           {/* Copyright */}
           <div className="pt-6 border-t border-border/40">
             <p className="text-sm text-muted-foreground">
-              © 2024 AI Transcription Studio. Powered by advanced AI technology.
+              © 2024 Botnoi Transcription . Powered by advanced AI technology.
             </p>
           </div>
         </div>
