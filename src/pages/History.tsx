@@ -67,20 +67,20 @@ const History = () => {
         isDark={isDark}
       />
       
-      <main className="py-12">
-        <div className="container px-4">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-4">
+      <main className="py-6 lg:py-12">
+        <div className="container px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-6 lg:mb-8">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
               <span className="bg-gradient-primary bg-clip-text text-transparent">
                 {t('history.title')}
               </span>
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
               {t('history.subtitle')}
             </p>
           </div>
           
-          <div className="animate-fade-in max-w-6xl mx-auto">
+          <div className="animate-fade-in max-w-7xl mx-auto">
             <TranscriptionHistory onLoadTranscription={handleLoadTranscription} />
           </div>
         </div>

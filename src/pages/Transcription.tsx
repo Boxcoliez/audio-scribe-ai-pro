@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { AudioUploader } from "@/components/AudioUploader";
@@ -102,22 +101,22 @@ const Transcription = () => {
         isDark={isDark}
       />
       
-      <main className="py-12">
-        <div className="container px-4">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-4">
+      <main className="py-6 lg:py-12">
+        <div className="container px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-6 lg:mb-8">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
               <span className="bg-gradient-primary bg-clip-text text-transparent">
                 {t('transcription.title')}
               </span>
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
               {t('transcription.subtitle')}
             </p>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
             {/* Left Panel - Audio Upload */}
-            <div className="animate-fade-in">
+            <div className="animate-fade-in order-1">
               <AudioUploader 
                 onTranscriptionStart={handleTranscriptionStart}
                 apiStatus={apiStatus}
@@ -125,7 +124,7 @@ const Transcription = () => {
             </div>
 
             {/* Right Panel - Results */}
-            <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <div className="animate-fade-in order-2" style={{ animationDelay: '0.2s' }}>
               <TranscriptionResults result={transcriptionResult} />
             </div>
           </div>

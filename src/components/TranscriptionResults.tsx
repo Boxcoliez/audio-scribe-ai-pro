@@ -15,6 +15,8 @@ interface TranscriptionResult {
   timestamp: string;
   audioUrl: string;
   wordCount: number;
+  charCount?: number;
+  downloaded?: boolean;
 }
 
 interface TranscriptionResultsProps {
@@ -70,6 +72,15 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+
+    // Mark as downloaded in history
+    const history = JSON.parse(localStorage.getItem('transcription_history') || '[]');
+    const updatedHistory = history.map((item: any) => 
+      item.timestamp === result.timestamp && item.fileName === result.fileName 
+        ? { ...item, downloaded: true } 
+        : item
+    );
+    localStorage.setItem('transcription_history', JSON.stringify(updatedHistory));
 
     toast({
       title: "Download Started",
@@ -139,24 +150,24 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* File Information */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <div className="flex items-center space-x-2 text-sm">
-              <FileText className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center space-x-2 text-sm break-all">
+              <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               <span className="font-medium">{result.fileName}</span>
             </div>
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4" />
+              <Clock className="h-4 w-4 flex-shrink-0" />
               <span>{result.duration}</span>
             </div>
           </div>
           <div className="space-y-2">
             <div className="flex items-center space-x-2 text-sm">
-              <Globe className="h-4 w-4 text-muted-foreground" />
+              <Globe className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               <span>{getLanguageFlag(result.language)} {result.language}</span>
             </div>
             <div className="text-sm text-muted-foreground">
-              {result.timestamp}
+              {new Date(result.timestamp).toLocaleString()}
             </div>
           </div>
         </div>
@@ -190,28 +201,32 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
         </div>
 
         {/* Transcription Text */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium">{t('transcriptionResults.transcriptionText')}</h3>
-            <div className="flex space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={copyToClipboard}
-              >
-                <Copy className="h-4 w-4 mr-1" />
-                {t('transcription.copy')}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={downloadText}
-              >
-                <Download className="h-4 w-4 mr-1" />
-                {t('transcription.download')}
-              </Button>
+          <div className="space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <h3 className="font-medium">{t('transcriptionResults.transcriptionText')}</h3>
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={copyToClipboard}
+                  className="flex-1 sm:flex-none"
+                >
+                  <Copy className="h-4 w-4 mr-1" />
+                  <span className="hidden sm:inline">{t('transcription.copy')}</span>
+                  <span className="sm:hidden">Copy</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={downloadText}
+                  className="flex-1 sm:flex-none"
+                >
+                  <Download className="h-4 w-4 mr-1" />
+                  <span className="hidden sm:inline">{t('transcription.download')}</span>
+                  <span className="sm:hidden">Download</span>
+                </Button>
+              </div>
             </div>
-          </div>
           
           <Textarea
             value={result.text}
@@ -222,26 +237,34 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
         </div>
 
         {/* Statistics */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="text-center p-4 rounded-lg bg-card border border-border/50">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div className="text-center p-3 sm:p-4 rounded-lg bg-card border border-border/50">
             <div className="flex items-center justify-center space-x-1 mb-1">
               <FileText className="h-4 w-4 text-primary" />
-              <span className="font-semibold text-lg">{result.wordCount}</span>
+              <span className="font-semibold text-base sm:text-lg">{result.wordCount}</span>
             </div>
             <div className="text-xs text-muted-foreground">{t('transcriptionResults.words')}</div>
           </div>
           
-          <div className="text-center p-4 rounded-lg bg-card border border-border/50">
+          <div className="text-center p-3 sm:p-4 rounded-lg bg-card border border-border/50">
+            <div className="flex items-center justify-center space-x-1 mb-1">
+              <Hash className="h-4 w-4 text-primary" />
+              <span className="font-semibold text-base sm:text-lg">{result.charCount || result.text.length}</span>
+            </div>
+            <div className="text-xs text-muted-foreground">Characters</div>
+          </div>
+          
+          <div className="text-center p-3 sm:p-4 rounded-lg bg-card border border-border/50 col-span-2 sm:col-span-1">
             <div className="flex items-center justify-center space-x-1 mb-1">
               <Globe className="h-4 w-4 text-primary" />
-              <span className="font-semibold text-lg">{getLanguageFlag(result.language)}</span>
+              <span className="font-semibold text-base sm:text-lg">{getLanguageFlag(result.language)}</span>
             </div>
             <div className="text-xs text-muted-foreground">{result.language}</div>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex space-x-3 pt-4">
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
           <Button
             variant="gradient"
             className="flex-1"

@@ -7,6 +7,7 @@ interface TranscriptionResult {
   audioUrl: string;
   wordCount: number;
   charCount: number;
+  downloaded?: boolean;
 }
 
 interface AudioFile {
@@ -15,6 +16,50 @@ interface AudioFile {
   duration?: number;
   size: string;
 }
+
+// Extract audio from video files
+const extractAudioFromVideo = (file: File): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement('video');
+    video.crossOrigin = 'anonymous';
+    
+    video.onloadedmetadata = () => {
+      try {
+        // Create audio context for extraction
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const source = audioContext.createMediaElementSource(video);
+        const destination = audioContext.createMediaStreamDestination();
+        source.connect(destination);
+        
+        const recorder = new MediaRecorder(destination.stream);
+        const chunks: Blob[] = [];
+        
+        recorder.ondataavailable = (e) => chunks.push(e.data);
+        recorder.onstop = () => {
+          const audioBlob = new Blob(chunks, { type: 'audio/wav' });
+          const audioFile = new File([audioBlob], file.name.replace(/\.[^/.]+$/, '.wav'), {
+            type: 'audio/wav',
+          });
+          resolve(audioFile);
+        };
+        
+        recorder.start();
+        video.play();
+        
+        video.onended = () => {
+          recorder.stop();
+          video.remove();
+        };
+      } catch (error) {
+        reject(new Error('Audio extraction not supported in this browser'));
+      }
+    };
+    
+    video.onerror = () => reject(new Error('Failed to load video file'));
+    video.src = URL.createObjectURL(file);
+    video.load();
+  });
+};
 
 // Convert audio file to base64 for Gemini API
 const audioToBase64 = (file: File): Promise<string> => {
@@ -165,13 +210,26 @@ export const transcribeAudio = async (
 
   onProgress(10);
   
+  let fileToProcess = audioFile.file;
+  
+  // Extract audio from video if needed
+  if (audioFile.file.type === 'video/mp4') {
+    onProgress(20);
+    try {
+      fileToProcess = await extractAudioFromVideo(audioFile.file);
+      onProgress(30);
+    } catch (error) {
+      throw new Error('Failed to extract audio from video file');
+    }
+  }
+  
   let transcribedText = '';
   let transcriptionMethod = 'Gemini AI';
   
   try {
     // Try Gemini AI first
-    onProgress(30);
-    transcribedText = await transcribeWithGemini(audioFile.file, apiKey);
+    onProgress(40);
+    transcribedText = await transcribeWithGemini(fileToProcess, apiKey);
     onProgress(80);
   } catch (geminiError) {
     console.warn('Gemini transcription failed, trying Web Speech API:', geminiError);
@@ -179,7 +237,7 @@ export const transcribeAudio = async (
     try {
       // Fallback to Web Speech API
       onProgress(50);
-      transcribedText = await transcribeWithWebSpeech(audioFile.file);
+      transcribedText = await transcribeWithWebSpeech(fileToProcess);
       transcriptionMethod = 'Web Speech API';
       onProgress(80);
     } catch (webSpeechError) {
