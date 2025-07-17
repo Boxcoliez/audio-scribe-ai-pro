@@ -26,7 +26,7 @@ const translations = {
     'header.loading': 'Loading...',
     
     // Hero Section
-    'hero.title': 'Professional Audio Transcription',
+    'hero.title': 'BOTNOI Transcription',
     'hero.subtitle': 'Transform your audio content into accurate text with our AI-powered transcription service. Fast, secure, and supports multiple languages.',
     'hero.startNow': 'Start Transcription Now',
     'hero.learnMore': 'Learn More',
@@ -170,7 +170,7 @@ const translations = {
     'header.loading': 'กำลังโหลด...',
     
     // Hero Section
-    'hero.title': 'บริการถอดเสียงระดับมืออาชีพ',
+    'hero.title': 'บอทน้อย บริการถอดเสียงระดับมืออาชีพ',
     'hero.subtitle': 'เปลี่ยนเนื้อหาเสียงของคุณให้เป็นข้อความที่แม่นยำด้วยบริการถอดเสียงที่ขับเคลื่อนด้วย AI รวดเร็ว ปลอดภัย และรองรับหลายภาษา',
     'hero.startNow': 'เริ่มถอดเสียงตอนนี้',
     'hero.learnMore': 'เรียนรู้เพิ่มเติม',
