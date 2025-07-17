@@ -1,4 +1,5 @@
-
+import enFlag from "@/assets/flags/english.png";
+import thFlag from "@/assets/flags/thai.jpg";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,30 +19,26 @@ const LanguageSwitcher = () => {
       code: 'en' as const,
       name: t('language.english'),
       flagIcon: (
-        <svg viewBox="0 0 32 32" className="w-full h-full">
-          <rect x="0" y="0" width="32" height="32" fill="#012169"/>
-          <path d="M0,0 L32,21.33 L32,0 L0,0 Z" fill="#FFFFFF"/>
-          <path d="M32,0 L0,21.33 L0,32 L32,32 L32,0 Z" fill="#FFFFFF"/>
-          <path d="M13.33,0 L13.33,32 L18.67,32 L18.67,0 L13.33,0 Z" fill="#FFFFFF"/>
-          <path d="M0,10.67 L0,21.33 L32,21.33 L32,10.67 L0,10.67 Z" fill="#FFFFFF"/>
-          <path d="M0,12.8 L0,19.2 L32,19.2 L32,12.8 L0,12.8 Z" fill="#C8102E"/>
-          <path d="M14.93,0 L14.93,32 L17.07,32 L17.07,0 L14.93,0 Z" fill="#C8102E"/>
-        </svg>
+        <img
+          src={enFlag}
+          alt="English Flag"
+          className="w-full h-full object-cover"
+        />
       )
     },
     {
       code: 'th' as const,
       name: t('language.thai'),
       flagIcon: (
-        <svg viewBox="0 0 32 32" className="w-full h-full">
-          <rect x="0" y="0" width="32" height="32" fill="#ED1C24"/>
-          <rect x="0" y="5.33" width="32" height="5.33" fill="#FFFFFF"/>
-          <rect x="0" y="10.67" width="32" height="10.67" fill="#241D4F"/>
-          <rect x="0" y="21.33" width="32" height="5.33" fill="#FFFFFF"/>
-        </svg>
+        <img
+          src={thFlag}
+          alt="Thai Flag"
+          className="w-full h-full object-cover"
+        />
       )
     }
   ];
+
 
   const currentLanguage = languages.find(lang => lang.code === language);
 
@@ -62,17 +59,16 @@ const LanguageSwitcher = () => {
           <ChevronDown className="h-3 w-3 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent 
-        align="end" 
+      <DropdownMenuContent
+        align="end"
         className="w-48 bg-popover border border-border shadow-lg"
       >
         {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
             onClick={() => setLanguage(lang.code)}
-            className={`flex items-center space-x-3 px-3 py-2 cursor-pointer hover:bg-accent/50 ${
-              language === lang.code ? 'bg-accent text-accent-foreground' : ''
-            }`}
+            className={`flex items-center space-x-3 px-3 py-2 cursor-pointer hover:bg-accent/50 ${language === lang.code ? 'bg-accent text-accent-foreground' : ''
+              }`}
           >
             <div className="w-7 h-7 rounded-full overflow-hidden shadow-sm border border-border/30 flex-shrink-0">
               <div className="w-full h-full">
