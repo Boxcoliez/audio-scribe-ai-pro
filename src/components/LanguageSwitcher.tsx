@@ -61,7 +61,7 @@ const LanguageSwitcher = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-48 bg-popover border border-border shadow-lg"
+        className="w-48 bg-popover border border-border shadow-lg space-y-1"
       >
         {languages.map((lang) => (
           <DropdownMenuItem
