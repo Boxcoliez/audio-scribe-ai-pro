@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Upload, File, Play, Pause, Trash2, Mic, Loader } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AudioFile {
   file: File;
@@ -28,6 +29,7 @@ export const AudioUploader = ({ onTranscriptionStart, apiStatus }: AudioUploader
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
@@ -173,10 +175,10 @@ export const AudioUploader = ({ onTranscriptionStart, apiStatus }: AudioUploader
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <Upload className="h-5 w-5 text-primary" />
-          <span>Audio File Upload</span>
+          <span>{t('audioUploader.title')}</span>
         </CardTitle>
         <CardDescription>
-          Upload your audio file for AI transcription (MP3, WAV, M4A - Max 25MB)
+          {t('audioUploader.subtitle')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -202,9 +204,9 @@ export const AudioUploader = ({ onTranscriptionStart, apiStatus }: AudioUploader
               </div>
               
               <div>
-                <h3 className="text-lg font-medium">Drop your audio file here</h3>
+                <h3 className="text-lg font-medium">{t('audioUploader.dropHere')}</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  or click to browse files
+                  {t('audioUploader.clickToBrowse')}
                 </p>
               </div>
               
@@ -275,7 +277,7 @@ export const AudioUploader = ({ onTranscriptionStart, apiStatus }: AudioUploader
             {isTranscribing && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span>Transcribing audio...</span>
+                  <span>{t('audioUploader.transcribing')}</span>
                   <span>{Math.round(transcriptionProgress)}%</span>
                 </div>
                 <Progress value={transcriptionProgress} className="h-2" />
@@ -293,19 +295,19 @@ export const AudioUploader = ({ onTranscriptionStart, apiStatus }: AudioUploader
               {isTranscribing ? (
                 <>
                   <Loader className="h-4 w-4 mr-2 animate-spin" />
-                  Transcribing...
+                  {t('audioUploader.transcribingProgress')}
                 </>
               ) : (
                 <>
                   <Mic className="h-4 w-4 mr-2" />
-                  Start Transcription
+                  {t('audioUploader.startTranscription')}
                 </>
               )}
             </Button>
 
             {apiStatus !== 'ready' && (
               <p className="text-sm text-muted-foreground text-center">
-                Please configure your API key to start transcription
+                {t('audioUploader.apiKeyRequired')}
               </p>
             )}
           </div>

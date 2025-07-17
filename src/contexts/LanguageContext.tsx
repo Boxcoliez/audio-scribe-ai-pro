@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type Language = 'en' | 'th';
@@ -102,6 +101,57 @@ const translations = {
     'common.delete': 'Delete',
     'common.edit': 'Edit',
     'common.close': 'Close',
+    
+    // Audio Uploader
+    'audioUploader.title': 'Audio File Upload',
+    'audioUploader.subtitle': 'Upload your audio file for AI transcription (MP3, WAV, M4A - Max 25MB)',
+    'audioUploader.dropHere': 'Drop your audio file here',
+    'audioUploader.clickToBrowse': 'or click to browse files',
+    'audioUploader.transcribing': 'Transcribing audio...',
+    'audioUploader.startTranscription': 'Start Transcription',
+    'audioUploader.transcribingProgress': 'Transcribing...',
+    'audioUploader.apiKeyRequired': 'Please configure your API key to start transcription',
+    
+    // Transcription Results
+    'transcriptionResults.title': 'Transcription Results',
+    'transcriptionResults.subtitle': 'AI-powered transcription completed successfully',
+    'transcriptionResults.uploadSubtitle': 'Upload and transcribe an audio file to see results here',
+    'transcriptionResults.noTranscription': 'No Transcription Yet',
+    'transcriptionResults.uploadToStart': 'Upload an audio file and start transcription to see results',
+    'transcriptionResults.completed': 'Completed',
+    'transcriptionResults.originalAudio': 'Original Audio',
+    'transcriptionResults.clickToPlay': 'Click to play/pause',
+    'transcriptionResults.transcriptionText': 'Transcription Text',
+    'transcriptionResults.words': 'Words',
+    'transcriptionResults.copyText': 'Copy Text',
+    'transcriptionResults.downloadTxt': 'Download .txt',
+    
+    // History
+    'historyComponent.title': 'Transcription History',
+    'historyComponent.subtitle': 'Manage and download your previous transcriptions',
+    'historyComponent.noHistory': 'No transcription history found.',
+    'historyComponent.noHistoryDesc': 'Start transcribing audio files to build your history.',
+    'historyComponent.clearAll': 'Clear All',
+    'historyComponent.exportAll': 'Export All',
+    
+    // API Setup
+    'apiSetup.title': 'API Configuration',
+    'apiSetup.subtitle': 'Configure your Google Gemini API for AI transcription',
+    'apiSetup.apiKeyLabel': 'Google Gemini API Key',
+    'apiSetup.apiKeyPlaceholder': 'Enter your API key (AIza...)',
+    'apiSetup.validateSave': 'Validate & Save',
+    'apiSetup.validating': 'Validating...',
+    'apiSetup.validated': 'Validated',
+    'apiSetup.needApiKey': 'Need an API Key?',
+    'apiSetup.getApiKeyDesc': 'Get your free Google Gemini API key from Google AI Studio. The free tier includes generous usage limits perfect for personal projects.',
+    'apiSetup.getApiKey': 'Get API Key',
+    'apiSetup.freeTier': 'Free Tier',
+    'apiSetup.highAccuracy': 'High Accuracy',
+    'apiSetup.requestsPerMin': '15 requests/min',
+    'apiSetup.precision': '99.5%+ precision',
+    'apiSetup.readyToStart': 'Ready to Start!',
+    'apiSetup.configuredDesc': 'Your API is configured. Start transcribing audio files now.',
+    'apiSetup.startTranscribing': 'Start Transcribing',
   },
   th: {
     // Header
@@ -195,6 +245,57 @@ const translations = {
     'common.delete': 'ลบ',
     'common.edit': 'แก้ไข',
     'common.close': 'ปิด',
+    
+    // Audio Uploader
+    'audioUploader.title': 'อัปโหลดไฟล์เสียง',
+    'audioUploader.subtitle': 'อัปโหลดไฟล์เสียงของคุณเพื่อการถอดเสียงด้วย AI (MP3, WAV, M4A - สูงสุด 25MB)',
+    'audioUploader.dropHere': 'วางไฟล์เสียงของคุณที่นี่',
+    'audioUploader.clickToBrowse': 'หรือคลิกเพื่อเลือกไฟล์',
+    'audioUploader.transcribing': 'กำลังถอดเสียง...',
+    'audioUploader.startTranscription': 'เริ่มการถอดเสียง',
+    'audioUploader.transcribingProgress': 'กำลังถอดเสียง...',
+    'audioUploader.apiKeyRequired': 'กรุณาตั้งค่า API key ก่อนเริ่มการถอดเสียง',
+    
+    // Transcription Results
+    'transcriptionResults.title': 'ผลการถอดเสียง',
+    'transcriptionResults.subtitle': 'การถอดเสียงด้วย AI เสร็จสมบูรณ์แล้ว',
+    'transcriptionResults.uploadSubtitle': 'อัปโหลดและถอดเสียงไฟล์เสียงเพื่อดูผลลัพธ์ที่นี่',
+    'transcriptionResults.noTranscription': 'ยังไม่มีการถอดเสียง',
+    'transcriptionResults.uploadToStart': 'อัปโหลดไฟล์เสียงและเริ่มการถอดเสียงเพื่อดูผลลัพธ์',
+    'transcriptionResults.completed': 'เสร็จสมบูรณ์',
+    'transcriptionResults.originalAudio': 'เสียงต้นฉบับ',
+    'transcriptionResults.clickToPlay': 'คลิกเพื่อเล่น/หยุด',
+    'transcriptionResults.transcriptionText': 'ข้อความที่ถอดเสียง',
+    'transcriptionResults.words': 'คำ',
+    'transcriptionResults.copyText': 'คัดลอกข้อความ',
+    'transcriptionResults.downloadTxt': 'ดาวน์โหลด .txt',
+    
+    // History
+    'historyComponent.title': 'ประวัติการถอดเสียง',
+    'historyComponent.subtitle': 'จัดการและดาวน์โหลดการถอดเสียงก่อนหน้าของคุณ',
+    'historyComponent.noHistory': 'ไม่พบประวัติการถอดเสียง',
+    'historyComponent.noHistoryDesc': 'เริ่มการถอดเสียงไฟล์เสียงเพื่อสร้างประวัติของคุณ',
+    'historyComponent.clearAll': 'ล้างทั้งหมด',
+    'historyComponent.exportAll': 'ส่งออกทั้งหมด',
+    
+    // API Setup
+    'apiSetup.title': 'การตั้งค่า API',
+    'apiSetup.subtitle': 'ตั้งค่า Google Gemini API ของคุณสำหรับการถอดเสียงด้วย AI',
+    'apiSetup.apiKeyLabel': 'Google Gemini API Key',
+    'apiSetup.apiKeyPlaceholder': 'ใส่ API key ของคุณ (AIza...)',
+    'apiSetup.validateSave': 'ตรวจสอบและบันทึก',
+    'apiSetup.validating': 'กำลังตรวจสอบ...',
+    'apiSetup.validated': 'ตรวจสอบแล้ว',
+    'apiSetup.needApiKey': 'ต้องการ API Key?',
+    'apiSetup.getApiKeyDesc': 'รับ Google Gemini API key ฟรีจาก Google AI Studio แพ็กเกจฟรีมีขอบเขตการใช้งานที่เหมาะสำหรับโปรเจ็กต์ส่วนตัว',
+    'apiSetup.getApiKey': 'รับ API Key',
+    'apiSetup.freeTier': 'แพ็กเกจฟรี',
+    'apiSetup.highAccuracy': 'ความแม่นยำสูง',
+    'apiSetup.requestsPerMin': '15 คำขอ/นาที',
+    'apiSetup.precision': 'ความแม่นยำ 99.5%+',
+    'apiSetup.readyToStart': 'พร้อมเริ่มต้น!',
+    'apiSetup.configuredDesc': 'API ของคุณได้รับการตั้งค่าแล้ว เริ่มการถอดเสียงไฟล์เสียงตอนนี้',
+    'apiSetup.startTranscribing': 'เริ่มการถอดเสียง',
   }
 };
 

@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Copy, Download, Play, Pause, FileText, Globe, Clock, Hash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TranscriptionResult {
   fileName: string;
@@ -24,6 +25,7 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const toggleAudioPlayback = () => {
     if (!audioRef.current || !result) return;
@@ -96,10 +98,10 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <FileText className="h-5 w-5 text-muted-foreground" />
-            <span>Transcription Results</span>
+            <span>{t('transcriptionResults.title')}</span>
           </CardTitle>
           <CardDescription>
-            Upload and transcribe an audio file to see results here
+            {t('transcriptionResults.uploadSubtitle')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -107,9 +109,9 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
             <div className="mx-auto w-24 h-24 rounded-full bg-gradient-hero flex items-center justify-center mb-4">
               <FileText className="h-12 w-12 text-primary" />
             </div>
-            <h3 className="text-lg font-medium mb-2">No Transcription Yet</h3>
+            <h3 className="text-lg font-medium mb-2">{t('transcriptionResults.noTranscription')}</h3>
             <p className="text-muted-foreground">
-              Upload an audio file and start transcription to see results
+              {t('transcriptionResults.uploadToStart')}
             </p>
           </div>
         </CardContent>
@@ -124,14 +126,14 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
           <div>
             <CardTitle className="flex items-center space-x-2">
               <FileText className="h-5 w-5 text-success" />
-              <span>Transcription Results</span>
+              <span>{t('transcriptionResults.title')}</span>
             </CardTitle>
             <CardDescription>
-              AI-powered transcription completed successfully
+              {t('transcriptionResults.subtitle')}
             </CardDescription>
           </div>
           <Badge variant="default" className="bg-success text-success-foreground">
-            Completed
+            {t('transcriptionResults.completed')}
           </Badge>
         </div>
       </CardHeader>
@@ -172,8 +174,8 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
                 {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
               </Button>
               <div>
-                <div className="text-sm font-medium">Original Audio</div>
-                <div className="text-xs text-muted-foreground">Click to play/pause</div>
+                <div className="text-sm font-medium">{t('transcriptionResults.originalAudio')}</div>
+                <div className="text-xs text-muted-foreground">{t('transcriptionResults.clickToPlay')}</div>
               </div>
             </div>
           </div>
@@ -190,7 +192,7 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
         {/* Transcription Text */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="font-medium">Transcription Text</h3>
+            <h3 className="font-medium">{t('transcriptionResults.transcriptionText')}</h3>
             <div className="flex space-x-2">
               <Button
                 variant="outline"
@@ -198,7 +200,7 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
                 onClick={copyToClipboard}
               >
                 <Copy className="h-4 w-4 mr-1" />
-                Copy
+                {t('transcription.copy')}
               </Button>
               <Button
                 variant="outline"
@@ -206,7 +208,7 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
                 onClick={downloadText}
               >
                 <Download className="h-4 w-4 mr-1" />
-                Download
+                {t('transcription.download')}
               </Button>
             </div>
           </div>
@@ -226,7 +228,7 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
               <FileText className="h-4 w-4 text-primary" />
               <span className="font-semibold text-lg">{result.wordCount}</span>
             </div>
-            <div className="text-xs text-muted-foreground">Words</div>
+            <div className="text-xs text-muted-foreground">{t('transcriptionResults.words')}</div>
           </div>
           
           <div className="text-center p-4 rounded-lg bg-card border border-border/50">
@@ -246,7 +248,7 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
             onClick={copyToClipboard}
           >
             <Copy className="h-4 w-4 mr-2" />
-            Copy Text
+            {t('transcriptionResults.copyText')}
           </Button>
           <Button
             variant="outline"
@@ -254,7 +256,7 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
             onClick={downloadText}
           >
             <Download className="h-4 w-4 mr-2" />
-            Download .txt
+            {t('transcriptionResults.downloadTxt')}
           </Button>
         </div>
       </CardContent>

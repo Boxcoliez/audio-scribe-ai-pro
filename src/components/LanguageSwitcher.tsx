@@ -55,7 +55,9 @@ const LanguageSwitcher = () => {
         >
           <Globe className="h-4 w-4 text-studio-blue" />
           <div className="w-6 h-6 rounded-full overflow-hidden shadow-sm border border-border/50 flex-shrink-0">
-            {currentLanguage?.flagIcon}
+            <div className="w-full h-full">
+              {currentLanguage?.flagIcon}
+            </div>
           </div>
           <ChevronDown className="h-3 w-3 opacity-50" />
         </Button>
@@ -73,7 +75,9 @@ const LanguageSwitcher = () => {
             }`}
           >
             <div className="w-7 h-7 rounded-full overflow-hidden shadow-sm border border-border/30 flex-shrink-0">
-              {lang.flagIcon}
+              <div className="w-full h-full">
+                {lang.flagIcon}
+              </div>
             </div>
             <span className="text-sm font-medium">{lang.name}</span>
           </DropdownMenuItem>
