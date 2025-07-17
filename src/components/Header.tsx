@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Mic, Sun, Moon, Zap, Shield, Globe, Home, Settings, History, FileAudio } from "lucide-react";
@@ -64,7 +63,7 @@ export const Header = ({ apiStatus, onThemeToggle, isDark }: HeaderProps) => {
               <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
                 {t('header.title')}
               </h1>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground hidden sm:block">
                 {t('header.subtitle')}
               </p>
             </div>
@@ -99,7 +98,7 @@ export const Header = ({ apiStatus, onThemeToggle, isDark }: HeaderProps) => {
         {/* Right Side - Status & Actions */}
         <div className="flex items-center space-x-4">
           {/* Feature Badges - Hidden on smaller screens to save space */}
-          <div className="hidden lg:flex items-center space-x-2">
+          <div className="hidden xl:flex items-center space-x-2">
             <div className="flex items-center space-x-1 px-2 py-1 rounded-full bg-gradient-hero border border-border/50">
               <Zap className="h-3 w-3 text-studio-blue" />
               <span className="text-xs font-medium">{t('header.fast')}</span>

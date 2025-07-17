@@ -46,13 +46,13 @@ export const AudioUploader = ({ onTranscriptionStart, apiStatus }: AudioUploader
   };
 
   const validateFile = (file: File): boolean => {
-    const validTypes = ['audio/mp3', 'audio/wav', 'audio/m4a', 'audio/mpeg', 'audio/x-wav'];
+    const validTypes = ['audio/mp3', 'audio/wav', 'audio/m4a', 'audio/mpeg', 'audio/x-wav', 'video/mp4'];
     const maxSize = 25 * 1024 * 1024; // 25MB
 
     if (!validTypes.includes(file.type)) {
       toast({
         title: "Invalid File Type",
-        description: "Please upload MP3, WAV, or M4A files only",
+        description: "Please upload MP3, WAV, M4A, or MP4 files only",
         variant: "destructive"
       });
       return false;
@@ -214,13 +214,14 @@ export const AudioUploader = ({ onTranscriptionStart, apiStatus }: AudioUploader
                 <Badge variant="outline">MP3</Badge>
                 <Badge variant="outline">WAV</Badge>
                 <Badge variant="outline">M4A</Badge>
+                <Badge variant="outline">MP4</Badge>
               </div>
             </div>
             
             <input
               ref={fileInputRef}
               type="file"
-              accept="audio/mp3,audio/wav,audio/m4a,audio/mpeg,audio/x-wav"
+              accept="audio/mp3,audio/wav,audio/m4a,audio/mpeg,audio/x-wav,video/mp4"
               onChange={handleFileSelect}
               className="hidden"
             />

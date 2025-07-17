@@ -7,23 +7,25 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  History, 
-  Search, 
-  Filter, 
-  Download, 
-  Trash2, 
-  Calendar, 
-  Globe, 
-  FileText, 
-  Play, 
+import {
+  History,
+  Search,
+  Filter,
+  Download,
+  Trash2,
+  Calendar,
+  Globe,
+  FileText,
+  Play,
   Pause,
   CheckSquare,
   Square,
   Eye,
   Edit2,
   Check,
-  X
+  X,
+  Copy,
+  Clock
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -70,11 +72,11 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
     if (latestResult) {
       setHistory(prevHistory => {
         // Check if this result already exists to avoid duplicates
-        const exists = prevHistory.some(item => 
-          item.fileName === latestResult.fileName && 
+        const exists = prevHistory.some(item =>
+          item.fileName === latestResult.fileName &&
           item.timestamp === latestResult.timestamp
         );
-        
+
         if (!exists) {
           const updatedHistory = [latestResult, ...prevHistory].slice(0, 100);
           localStorage.setItem('transcription_history', JSON.stringify(updatedHistory));
@@ -98,7 +100,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
     // Search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.fileName.toLowerCase().includes(query) ||
         item.text.toLowerCase().includes(query)
       );
@@ -171,16 +173,16 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
   const handleDeleteSelected = () => {
     const selectedIndices = Array.from(selectedItems);
     const updatedHistory = history.filter((_, originalIndex) => {
-      const filteredIndex = filteredHistory.findIndex(item => 
+      const filteredIndex = filteredHistory.findIndex(item =>
         history.indexOf(item) === originalIndex
       );
       return !selectedIndices.includes(filteredIndex);
     });
-    
+
     setHistory(updatedHistory);
     localStorage.setItem('transcription_history', JSON.stringify(updatedHistory));
     setSelectedItems(new Set());
-    
+
     toast({
       title: "Items Deleted",
       description: `${selectedIndices.length} transcription(s) deleted`,
@@ -190,15 +192,15 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
 
   const handleDeleteSingle = (index: number) => {
     const itemToDelete = filteredHistory[index];
-    const originalIndex = history.findIndex(item => 
+    const originalIndex = history.findIndex(item =>
       item.timestamp === itemToDelete.timestamp && item.fileName === itemToDelete.fileName
     );
-    
+
     if (originalIndex !== -1) {
       const updatedHistory = history.filter((_, idx) => idx !== originalIndex);
       setHistory(updatedHistory);
       localStorage.setItem('transcription_history', JSON.stringify(updatedHistory));
-      
+
       toast({
         title: "Item Deleted",
         description: "Transcription deleted successfully",
@@ -216,16 +218,16 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
   const handleSaveEdit = (index: number) => {
     if (editingName.trim()) {
       const itemToEdit = filteredHistory[index];
-      const originalIndex = history.findIndex(item => 
+      const originalIndex = history.findIndex(item =>
         item.timestamp === itemToEdit.timestamp && item.fileName === itemToEdit.fileName
       );
-      
+
       if (originalIndex !== -1) {
         const updatedHistory = [...history];
         updatedHistory[originalIndex] = { ...updatedHistory[originalIndex], fileName: editingName.trim() };
         setHistory(updatedHistory);
         localStorage.setItem('transcription_history', JSON.stringify(updatedHistory));
-        
+
         toast({
           title: "Name Updated",
           description: "File name updated successfully",
@@ -242,11 +244,46 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
     setEditingName('');
   };
 
+  const handleDownloadSingle = (item: TranscriptionResult) => {
+    const content =
+      `File: ${item.fileName}\n` +
+      `Date: ${item.timestamp}\n` +
+      `Language: ${item.language}\n` +
+      `Duration: ${item.duration}\n` +
+      `Words: ${item.wordCount} | Characters: ${item.charCount || item.text.length}\n\n` +
+      `Transcription:\n${item.text}`;
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${item.fileName.replace(/\.[^/.]+$/, '')}_transcription.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    // Mark item as downloaded
+    const updatedHistory = history.map(historyItem =>
+      historyItem.timestamp === item.timestamp && historyItem.fileName === item.fileName
+        ? { ...historyItem, downloaded: true }
+        : historyItem
+    );
+    setHistory(updatedHistory);
+    localStorage.setItem('transcription_history', JSON.stringify(updatedHistory));
+
+    toast({
+      title: "Download Started",
+      description: "Transcription file download started",
+      variant: "default"
+    });
+  };
+
   const handleDownloadSelected = () => {
     const selectedIndices = Array.from(selectedItems);
     const selectedTranscriptions = selectedIndices.map(index => filteredHistory[index]);
-    
-    const content = selectedTranscriptions.map(item => 
+
+    const content = selectedTranscriptions.map(item =>
       `File: ${item.fileName}\n` +
       `Date: ${item.timestamp}\n` +
       `Language: ${item.language}\n` +
@@ -268,7 +305,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
 
     // Mark items as downloaded
     const updatedHistory = history.map(item => {
-      const isSelected = selectedTranscriptions.some(selected => 
+      const isSelected = selectedTranscriptions.some(selected =>
         selected.timestamp === item.timestamp && selected.fileName === item.fileName
       );
       return isSelected ? { ...item, downloaded: true } : item;
@@ -283,6 +320,23 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
     });
   };
 
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "Text Copied",
+        description: "Transcription text copied to clipboard",
+        variant: "default"
+      });
+    } catch (error) {
+      toast({
+        title: "Copy Failed",
+        description: "Failed to copy text to clipboard",
+        variant: "destructive"
+      });
+    }
+  };
+
   const toggleAudio = (audioUrl: string) => {
     const audio = document.getElementById(`audio-${audioUrl}`) as HTMLAudioElement;
     if (audio) {
@@ -295,8 +349,19 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
           const currentAudio = document.getElementById(`audio-${isPlaying}`) as HTMLAudioElement;
           if (currentAudio) currentAudio.pause();
         }
-        audio.play();
-        setIsPlaying(audioUrl);
+
+        // Reset audio to beginning and try to play
+        audio.currentTime = 0;
+        audio.play().then(() => {
+          setIsPlaying(audioUrl);
+        }).catch((error) => {
+          console.error('Audio play failed:', error);
+          toast({
+            title: "Audio Playback Error",
+            description: "Unable to play audio file. The file may be corrupted or in an unsupported format.",
+            variant: "destructive"
+          });
+        });
       }
     }
   };
@@ -348,7 +413,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
           </div>
 
           {/* Filters Row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <Select value={languageFilter} onValueChange={setLanguageFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Filter by language" />
@@ -376,7 +441,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
               </SelectContent>
             </Select>
 
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 sm:col-span-2 lg:col-span-1">
               <Button
                 variant="outline"
                 size="sm"
@@ -388,14 +453,15 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                 ) : (
                   <Square className="h-4 w-4 mr-1" />
                 )}
-                Select All
+                <span className="hidden sm:inline">Select All</span>
+                <span className="sm:hidden">All</span>
               </Button>
             </div>
           </div>
 
           {/* Custom Date Range */}
           {dateFilter === 'custom' && (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Input
                 type="date"
                 value={customDateRange.start}
@@ -414,11 +480,12 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
 
         {/* Action Buttons */}
         {selectedItems.size > 0 && (
-          <div className="flex space-x-2 p-3 bg-accent rounded-lg">
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 p-3 bg-accent rounded-lg">
             <Button
               variant="outline"
               size="sm"
               onClick={handleDownloadSelected}
+              className="flex-1 sm:flex-none"
             >
               <Download className="h-4 w-4 mr-1" />
               Download ({selectedItems.size})
@@ -427,6 +494,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
               variant="destructive"
               size="sm"
               onClick={handleDeleteSelected}
+              className="flex-1 sm:flex-none"
             >
               <Trash2 className="h-4 w-4 mr-1" />
               Delete ({selectedItems.size})
@@ -435,15 +503,15 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
         )}
 
         {/* History List */}
-        <div className="space-y-3 max-h-96 overflow-y-auto">
+        <div className="space-y-3 max-h-[60vh] sm:max-h-96 overflow-y-auto">
           {filteredHistory.length === 0 ? (
             <div className="text-center py-8">
               <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
                 <History className="h-8 w-8 text-muted-foreground" />
               </div>
               <h3 className="font-medium mb-2">No transcriptions found</h3>
-              <p className="text-sm text-muted-foreground">
-                {history.length === 0 
+              <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                {history.length === 0
                   ? "Start transcribing audio files to see them here"
                   : "Try adjusting your search or filters"
                 }
@@ -453,15 +521,16 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
             filteredHistory.map((item, index) => (
               <div
                 key={`${item.timestamp}-${index}`}
-                className="p-4 border rounded-lg bg-card hover:bg-accent/50 transition-colors"
+                className="group p-3 sm:p-4 border rounded-lg bg-card hover:bg-accent/15 transition-colors"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start space-x-3 flex-1">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-3">
+                  <div className="flex items-start space-x-3 flex-1 min-w-0">
                     <Checkbox
                       checked={selectedItems.has(index)}
                       onCheckedChange={() => handleSelectItem(index)}
+                      className="mt-1"
                     />
-                    
+
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2 mb-2">
                         <FileText className="h-4 w-4 text-primary flex-shrink-0" />
@@ -495,7 +564,9 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                             </Button>
                           </div>
                         ) : (
-                          <h4 className="font-medium text-sm truncate">{item.fileName}</h4>
+                          <h4 className="font-medium text-sm truncate group-hover:text-primary transition-colors">
+                            {item.fileName}
+                          </h4>
                         )}
                         <Badge variant="outline" className="text-xs">
                           {getLanguageFlag(item.language)} {item.language}
@@ -506,33 +577,38 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                           </Badge>
                         )}
                       </div>
-                      
-                      <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground mb-2">
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-muted-foreground mb-2">
                         <div className="flex items-center space-x-1">
                           <Calendar className="h-3 w-3" />
                           <span>{new Date(item.timestamp).toLocaleDateString()}</span>
                         </div>
-                        <div>
+                        <div className="flex items-center space-x-1">
+                          <Clock className="h-3 w-3" />
+                          <span>{new Date(item.timestamp).toLocaleTimeString()}</span>
+                        </div>
+                        <div className="sm:col-span-2">
                           Duration: {item.duration} • {item.wordCount} words
                         </div>
                       </div>
-                      
-                      <p className="text-sm text-muted-foreground line-clamp-2">
+
+                      <p className="text-sm text-muted-foreground line-clamp-2 group-hover:text-primary transition-colors">
                         {item.text.substring(0, 100)}...
                       </p>
                     </div>
                   </div>
-                  
-                  <div className="flex items-center space-x-1 ml-2">
+
+                  <div className="flex items-center space-x-1 ml-2 flex-wrap sm:flex-nowrap">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleEditName(index)}
                       disabled={editingIndex === index}
+                      className="hidden sm:inline-flex"
                     >
                       <Edit2 className="h-4 w-4" />
                     </Button>
-                    
+
                     <Button
                       variant="ghost"
                       size="sm"
@@ -544,36 +620,61 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                         <Play className="h-4 w-4" />
                       )}
                     </Button>
-                    
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDownloadSingle(item)}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button variant="ghost" size="sm">
                           <Eye className="h-4 w-4" />
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-2xl">
+                      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
-                          <DialogTitle>{item.fileName}</DialogTitle>
-                          <DialogDescription>
-                            {item.timestamp} • {item.language} • {item.duration}
+                          <DialogTitle className="text-lg sm:text-xl">{item.fileName}</DialogTitle>
+                          <DialogDescription className="text-sm">
+                            {new Date(item.timestamp).toLocaleString()} • {item.language} • {item.duration}
                           </DialogDescription>
                         </DialogHeader>
                         <Textarea
                           value={item.text}
                           readOnly
-                          className="min-h-[300px] resize-none"
+                          className="min-h-[300px] resize-none text-sm"
                         />
-                        <div className="flex justify-between">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                           <div className="text-sm text-muted-foreground">
-                            {item.wordCount} words
+                            {item.wordCount} words • {item.charCount} characters
                           </div>
-                          <Button onClick={() => onLoadTranscription(item)}>
-                            Load This Transcription
-                          </Button>
+                          <div className="flex gap-2 w-full sm:w-auto">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => copyToClipboard(item.text)}
+                              className="flex-1 sm:flex-none"
+                            >
+                              <Copy className="h-4 w-4 mr-1" />
+                              Copy
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDownloadSingle(item)}
+                              className="flex-1 sm:flex-none"
+                            >
+                              <Download className="h-4 w-4 mr-1" />
+                              Download
+                            </Button>
+                          </div>
                         </div>
                       </DialogContent>
                     </Dialog>
-                    
+
                     <Button
                       variant="ghost"
                       size="sm"
@@ -584,16 +685,21 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                     </Button>
                   </div>
                 </div>
-                
-                {/* Hidden audio elements */}
+
                 <audio
                   id={`audio-${item.audioUrl}`}
                   src={item.audioUrl}
                   onEnded={() => setIsPlaying(null)}
+                  onError={(e) => {
+                    console.error('Audio playback error:', e);
+                    setIsPlaying(null);
+                  }}
+                  preload="metadata"
                   style={{ display: 'none' }}
                 />
               </div>
             ))
+
           )}
         </div>
       </CardContent>

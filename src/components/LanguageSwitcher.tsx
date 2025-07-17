@@ -48,7 +48,7 @@ const LanguageSwitcher = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="h-9 px-3 hover:bg-accent/20 flex items-center space-x-2"
+          className="h-9 px-3 bg-card hover:bg-accent/20 flex items-center space-x-2 border border-border/50"
         >
           <Globe className="h-4 w-4 text-studio-blue" />
           <div className="w-6 h-6 rounded-full overflow-hidden shadow-sm border border-border/50 flex-shrink-0">
