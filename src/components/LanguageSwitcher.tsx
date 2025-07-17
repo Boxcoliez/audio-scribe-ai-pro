@@ -37,13 +37,15 @@ const LanguageSwitcher = () => {
           className="h-9 px-3 hover:bg-accent/20 flex items-center space-x-2"
         >
           <Globe className="h-4 w-4 text-studio-blue" />
-          <span className="text-sm font-medium">{currentLanguage?.flag}</span>
+          <div className="w-5 h-5 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center text-xs shadow-sm border border-border/50">
+            {currentLanguage?.flag}
+          </div>
           <ChevronDown className="h-3 w-3 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
         align="end" 
-        className="w-40 bg-popover border border-border shadow-lg"
+        className="w-48 bg-popover border border-border shadow-lg"
       >
         {languages.map((lang) => (
           <DropdownMenuItem
@@ -53,7 +55,7 @@ const LanguageSwitcher = () => {
               language === lang.code ? 'bg-accent text-accent-foreground' : ''
             }`}
           >
-            <div className="w-5 h-5 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xs">
+            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center text-sm shadow-sm border border-border/30">
               {lang.flag}
             </div>
             <span className="text-sm font-medium">{lang.name}</span>
