@@ -12,7 +12,7 @@ export const Footer = () => {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <Mic className="h-6 w-6 text-primary" />
+              <img src="/botnoiLogo.png" alt="Botnoi Logo" className="h-20 w-20 rounded-full" />
               <span className="text-lg font-bold bg-gradient-primary bg-clip-text text-transparent">
                 {t('header.title')}
               </span>

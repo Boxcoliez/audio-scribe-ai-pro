@@ -58,9 +58,8 @@ export const Header = ({ apiStatus, onThemeToggle, isDark }: HeaderProps) => {
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/')}>
             <div className="relative">
-              <Mic className="h-8 w-8 text-primary animate-pulse-glow" />
-              <div className="absolute inset-0 bg-primary/20 rounded-full blur-md animate-pulse-glow" />
-            </div>
+            <img src="/botnoiLogo.png" alt="Botnoi Logo" className="h-20 w-20 rounded-full" />
+          </div>
             <div>
               <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
                 {t('header.title')}
