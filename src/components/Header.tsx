@@ -59,7 +59,7 @@ export const Header = ({ apiStatus, onThemeToggle, isDark }: HeaderProps) => {
             </div>
             <div>
               <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                AI Transcription Studio
+                Botnoi Transcription 
               </h1>
               <p className="text-xs text-muted-foreground">
                 Professional Audio-to-Text Service
