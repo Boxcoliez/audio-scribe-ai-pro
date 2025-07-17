@@ -51,10 +51,28 @@ const translations = {
     'transcription.subtitle': 'Upload your audio files and get accurate transcriptions powered by AI',
     'transcription.apiKeyRequired': 'API Key Required',
     'transcription.apiKeyRequiredDesc': 'Please configure your Gemini API key first',
+    'transcription.uploadTitle': 'Upload Audio File',
+    'transcription.uploadSubtitle': 'Drag and drop your audio file or click to browse',
+    'transcription.supportedFormats': 'Supported formats: MP3, WAV, M4A',
+    'transcription.processing': 'Processing...',
+    'transcription.selectFile': 'Select File',
+    'transcription.resultsTitle': 'Transcription Results',
+    'transcription.noResults': 'No transcription results yet. Upload an audio file to get started.',
+    'transcription.download': 'Download Text',
+    'transcription.copy': 'Copy to Clipboard',
+    'transcription.fileName': 'File Name',
+    'transcription.duration': 'Duration',
+    'transcription.language': 'Language',
+    'transcription.wordCount': 'Word Count',
+    'transcription.charCount': 'Character Count',
     
     // History Page
     'history.title': 'Transcription History',
     'history.subtitle': 'View, manage, and download your previous transcriptions',
+    'history.noHistory': 'No transcription history found.',
+    'history.loadTranscription': 'Load Transcription',
+    'history.delete': 'Delete',
+    'history.export': 'Export',
     
     // Footer
     'footer.description': 'Professional audio transcription service powered by advanced AI technology.',
@@ -73,6 +91,17 @@ const translations = {
     // Language Selector
     'language.english': 'English',
     'language.thai': 'ไทย',
+    
+    // Common
+    'common.learnMore': 'Learn More',
+    'common.loading': 'Loading...',
+    'common.error': 'Error',
+    'common.success': 'Success',
+    'common.cancel': 'Cancel',
+    'common.save': 'Save',
+    'common.delete': 'Delete',
+    'common.edit': 'Edit',
+    'common.close': 'Close',
   },
   th: {
     // Header
@@ -92,7 +121,7 @@ const translations = {
     
     // Hero Section
     'hero.title': 'บริการถอดเสียงระดับมืออาชีพ',
-    'hero.subtitle': 'เปลี่ยนเนื้อหาเสียงของคุณให้เป็นข้อความที่แม่นยำด้วยบริการถอดเสียงที่ขับเคลื่อนด้วย AI รวดเร็ว ปลอดภัย และรองรับหลายภาषา',
+    'hero.subtitle': 'เปลี่ยนเนื้อหาเสียงของคุณให้เป็นข้อความที่แม่นยำด้วยบริการถอดเสียงที่ขับเคลื่อนด้วย AI รวดเร็ว ปลอดภัย และรองรับหลายภาษา',
     'hero.startNow': 'เริ่มถอดเสียงตอนนี้',
     'hero.learnMore': 'เรียนรู้เพิ่มเติม',
     
@@ -115,10 +144,28 @@ const translations = {
     'transcription.subtitle': 'อัปโหลดไฟล์เสียงของคุณและรับการถอดเสียงที่แม่นยำด้วยพลัง AI',
     'transcription.apiKeyRequired': 'จำเป็นต้องมี API Key',
     'transcription.apiKeyRequiredDesc': 'กรุณาตั้งค่า Gemini API key ก่อน',
+    'transcription.uploadTitle': 'อัปโหลดไฟล์เสียง',
+    'transcription.uploadSubtitle': 'ลากและวางไฟล์เสียงของคุณหรือคลิกเพื่อเลือกไฟล์',
+    'transcription.supportedFormats': 'รูปแบบที่รองรับ: MP3, WAV, M4A',
+    'transcription.processing': 'กำลังประมวลผล...',
+    'transcription.selectFile': 'เลือกไฟล์',
+    'transcription.resultsTitle': 'ผลการถอดเสียง',
+    'transcription.noResults': 'ยังไม่มีผลการถอดเสียง อัปโหลดไฟล์เสียงเพื่อเริ่มต้น',
+    'transcription.download': 'ดาวน์โหลดข้อความ',
+    'transcription.copy': 'คัดลอกไปยังคลิปบอร์ด',
+    'transcription.fileName': 'ชื่อไฟล์',
+    'transcription.duration': 'ระยะเวลา',
+    'transcription.language': 'ภาษา',
+    'transcription.wordCount': 'จำนวนคำ',
+    'transcription.charCount': 'จำนวนตัวอักษร',
     
     // History Page
     'history.title': 'ประวัติการถอดเสียง',
     'history.subtitle': 'ดู จัดการ และดาวน์โหลดการถอดเสียงก่อนหน้าของคุณ',
+    'history.noHistory': 'ไม่พบประวัติการถอดเสียง',
+    'history.loadTranscription': 'โหลดการถอดเสียง',
+    'history.delete': 'ลบ',
+    'history.export': 'ส่งออก',
     
     // Footer
     'footer.description': 'บริการถอดเสียงระดับมืออาชีพที่ขับเคลื่อนด้วยเทคโนโลยี AI ขั้นสูง',
@@ -137,6 +184,17 @@ const translations = {
     // Language Selector
     'language.english': 'English',
     'language.thai': 'ไทย',
+    
+    // Common
+    'common.learnMore': 'เรียนรู้เพิ่มเติม',
+    'common.loading': 'กำลังโหลด...',
+    'common.error': 'ข้อผิดพลาด',
+    'common.success': 'สำเร็จ',
+    'common.cancel': 'ยกเลิก',
+    'common.save': 'บันทึก',
+    'common.delete': 'ลบ',
+    'common.edit': 'แก้ไข',
+    'common.close': 'ปิด',
   }
 };
 

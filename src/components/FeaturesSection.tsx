@@ -75,7 +75,7 @@ export const FeaturesSection = () => {
                     size="sm" 
                     className="group/btn p-0 h-auto font-semibold text-primary hover:text-primary"
                   >
-                    Learn More
+                    {t('common.learnMore')}
                     <ArrowRight className="ml-1 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
                   </Button>
                 </CardContent>
