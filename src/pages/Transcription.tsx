@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { AudioUploader } from "@/components/AudioUploader";
@@ -6,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { transcribeAudio } from "@/lib/transcription";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AudioFile {
   file: File;
@@ -31,6 +33,7 @@ const Transcription = () => {
   const [transcriptionResult, setTranscriptionResult] = useState<TranscriptionResult | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   // Initialize theme
   useEffect(() => {
@@ -53,13 +56,13 @@ const Transcription = () => {
     } else {
       // Redirect to settings if no API key
       toast({
-        title: "API Key Required",
-        description: "Please configure your Gemini API key first",
+        title: t('transcription.apiKeyRequired'),
+        description: t('transcription.apiKeyRequiredDesc'),
         variant: "destructive"
       });
       navigate('/settings');
     }
-  }, [navigate, toast]);
+  }, [navigate, toast, t]);
 
   const handleThemeToggle = () => {
     const newIsDark = !isDark;
@@ -104,11 +107,11 @@ const Transcription = () => {
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold mb-4">
               <span className="bg-gradient-primary bg-clip-text text-transparent">
-                Audio Transcription
+                {t('transcription.title')}
               </span>
             </h1>
             <p className="text-muted-foreground">
-              Upload your audio files and get accurate transcriptions powered by AI
+              {t('transcription.subtitle')}
             </p>
           </div>
           

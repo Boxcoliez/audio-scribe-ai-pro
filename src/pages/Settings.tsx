@@ -2,10 +2,12 @@ import { Header } from "@/components/Header";
 import { ApiSetup } from "@/components/ApiSetup";
 import { Footer } from "@/components/Footer";
 import { useState, useEffect } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Settings = () => {
   const [apiStatus, setApiStatus] = useState<'ready' | 'pending' | 'error'>('pending');
   const [isDark, setIsDark] = useState(false);
+  const { t } = useLanguage();
 
   // Initialize theme
   useEffect(() => {
@@ -58,11 +60,11 @@ const Settings = () => {
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold mb-4">
               <span className="bg-gradient-primary bg-clip-text text-transparent">
-                API Configuration
+                {t('settings.title')}
               </span>
             </h1>
             <p className="text-muted-foreground">
-              Configure your Gemini API key to start transcribing audio files
+              {t('settings.subtitle')}
             </p>
           </div>
           

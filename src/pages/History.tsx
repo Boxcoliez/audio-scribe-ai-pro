@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { TranscriptionHistory } from "@/components/TranscriptionHistory";
 import { Footer } from "@/components/Footer";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TranscriptionResult {
   fileName: string;
@@ -17,6 +18,7 @@ interface TranscriptionResult {
 const History = () => {
   const [apiStatus, setApiStatus] = useState<'ready' | 'pending' | 'error'>('pending');
   const [isDark, setIsDark] = useState(false);
+  const { t } = useLanguage();
 
   // Initialize theme
   useEffect(() => {
@@ -70,11 +72,11 @@ const History = () => {
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold mb-4">
               <span className="bg-gradient-primary bg-clip-text text-transparent">
-                Transcription History
+                {t('history.title')}
               </span>
             </h1>
             <p className="text-muted-foreground">
-              View, manage, and download your previous transcriptions
+              {t('history.subtitle')}
             </p>
           </div>
           

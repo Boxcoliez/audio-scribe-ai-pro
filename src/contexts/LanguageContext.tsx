@@ -42,6 +42,20 @@ const translations = {
     'features.settings.title': 'Multi-Language',
     'features.settings.description': 'Support for 100+ languages with high accuracy. Perfect for global content creators.',
     
+    // Settings Page
+    'settings.title': 'API Configuration',
+    'settings.subtitle': 'Configure your Gemini API key to start transcribing audio files',
+    
+    // Transcription Page
+    'transcription.title': 'Audio Transcription',
+    'transcription.subtitle': 'Upload your audio files and get accurate transcriptions powered by AI',
+    'transcription.apiKeyRequired': 'API Key Required',
+    'transcription.apiKeyRequiredDesc': 'Please configure your Gemini API key first',
+    
+    // History Page
+    'history.title': 'Transcription History',
+    'history.subtitle': 'View, manage, and download your previous transcriptions',
+    
     // Footer
     'footer.description': 'Professional audio transcription service powered by advanced AI technology.',
     'footer.quickLinks': 'Quick Links',
@@ -78,7 +92,7 @@ const translations = {
     
     // Hero Section
     'hero.title': 'บริการถอดเสียงระดับมืออาชีพ',
-    'hero.subtitle': 'เปลี่ยนเนื้อหาเสียงของคุณให้เป็นข้อความที่แม่นยำด้วยบริการถอดเสียงที่ขับเคลื่อนด้วย AI รวดเร็ว ปลอดภัย และรองรับหลายภาษา',
+    'hero.subtitle': 'เปลี่ยนเนื้อหาเสียงของคุณให้เป็นข้อความที่แม่นยำด้วยบริการถอดเสียงที่ขับเคลื่อนด้วย AI รวดเร็ว ปลอดภัย และรองรับหลายภาषา',
     'hero.startNow': 'เริ่มถอดเสียงตอนนี้',
     'hero.learnMore': 'เรียนรู้เพิ่มเติม',
     
@@ -91,6 +105,20 @@ const translations = {
     'features.history.description': 'ข้อมูลของคุณได้รับการปกป้องด้วยความปลอดภัยระดับองค์กร เราไม่เก็บไฟล์เสียงของคุณไว้อย่างถาวร',
     'features.settings.title': 'หลายภาษา',
     'features.settings.description': 'รองรับมากกว่า 100 ภาษาด้วยความแม่นยำสูง เหมาะสำหรับผู้สร้างเนื้อหาระดับโลก',
+    
+    // Settings Page
+    'settings.title': 'การตั้งค่า API',
+    'settings.subtitle': 'ตั้งค่า Gemini API key ของคุณเพื่อเริ่มการถอดเสียงไฟล์เสียง',
+    
+    // Transcription Page
+    'transcription.title': 'การถอดเสียง',
+    'transcription.subtitle': 'อัปโหลดไฟล์เสียงของคุณและรับการถอดเสียงที่แม่นยำด้วยพลัง AI',
+    'transcription.apiKeyRequired': 'จำเป็นต้องมี API Key',
+    'transcription.apiKeyRequiredDesc': 'กรุณาตั้งค่า Gemini API key ก่อน',
+    
+    // History Page
+    'history.title': 'ประวัติการถอดเสียง',
+    'history.subtitle': 'ดู จัดการ และดาวน์โหลดการถอดเสียงก่อนหน้าของคุณ',
     
     // Footer
     'footer.description': 'บริการถอดเสียงระดับมืออาชีพที่ขับเคลื่อนด้วยเทคโนโลยี AI ขั้นสูง',
