@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   History,
   Search,
@@ -58,6 +59,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingName, setEditingName] = useState('');
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   // Load history from localStorage
   useEffect(() => {
@@ -387,14 +389,14 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
           <div>
             <CardTitle className="flex items-center space-x-2">
               <History className="h-5 w-5 text-primary" />
-              <span>Transcription History</span>
+              <span>{t('transcription.title')}</span>
             </CardTitle>
             <CardDescription>
-              Manage and filter your previous transcriptions
+              {t('transcription.subtitle')}
             </CardDescription>
           </div>
           <Badge variant="outline" className="ml-2">
-            {filteredHistory.length} items
+            {filteredHistory.length} {t('transcription.items')}
           </Badge>
         </div>
       </CardHeader>
@@ -405,7 +407,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search by filename or content..."
+              placeholder= {t('transcription.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -419,7 +421,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                 <SelectValue placeholder="Filter by language" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Languages</SelectItem>
+                <SelectItem value="all">{t('transcription.AllLanguages')}</SelectItem>
                 {availableLanguages.map(lang => (
                   <SelectItem key={lang} value={lang}>
                     {getLanguageFlag(lang)} {lang}
@@ -433,11 +435,11 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                 <SelectValue placeholder="Filter by date" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Time</SelectItem>
-                <SelectItem value="today">Today</SelectItem>
-                <SelectItem value="week">This Week</SelectItem>
-                <SelectItem value="month">This Month</SelectItem>
-                <SelectItem value="custom">Custom Range</SelectItem>
+                <SelectItem value="all">{t('transcription.date1')}</SelectItem>
+                <SelectItem value="today">{t('transcription.date2')}</SelectItem>
+                <SelectItem value="week">{t('transcription.date3')}</SelectItem>
+                <SelectItem value="month">{t('transcription.date4')}</SelectItem>
+                <SelectItem value="custom">{t('transcription.date5')}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -453,7 +455,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                 ) : (
                   <Square className="h-4 w-4 mr-1" />
                 )}
-                <span className="hidden sm:inline">Select All</span>
+                <span className="hidden sm:inline">{t('transcription.SelectAll')}</span>
                 <span className="sm:hidden">All</span>
               </Button>
             </div>
@@ -509,11 +511,11 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
               <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
                 <History className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h3 className="font-medium mb-2">No transcriptions found</h3>
+              <h3 className="font-medium mb-2">{t('transcription.Notranscriptions')}</h3>
               <p className="text-sm text-muted-foreground max-w-md mx-auto">
                 {history.length === 0
-                  ? "Start transcribing audio files to see them here"
-                  : "Try adjusting your search or filters"
+                  ? t('transcription.NoTranscriptionsDesc')
+                  : t('transcription.NoTranscriptionsDesc2')
                 }
               </p>
             </div>
