@@ -7,7 +7,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { useLanguage } from "@/contexts/LanguageContext";
 import {
   History,
   Search,
@@ -31,6 +30,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 
 interface TranscriptionResult {
+  id: string;
   fileName: string;
   duration: string;
   language: string;
@@ -40,6 +40,12 @@ interface TranscriptionResult {
   wordCount: number;
   charCount: number;
   downloaded?: boolean;
+  painSummary?: string;
+  gainSummary?: string;
+  fullTranscription: string;
+  formattedContent: string;
+  spokenLanguage?: string;
+  transcriptionTarget?: 'Thai' | 'English' | 'Both';
 }
 
 interface TranscriptionHistoryProps {
@@ -59,7 +65,6 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingName, setEditingName] = useState('');
   const { toast } = useToast();
-  const { t } = useLanguage();
 
   // Load history from localStorage
   useEffect(() => {
@@ -247,7 +252,8 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
   };
 
   const handleDownloadSingle = (item: TranscriptionResult) => {
-    const content =
+    // Use formattedContent if available (new format with Pain/Gain analysis), otherwise fallback to basic format
+    const content = item.formattedContent || 
       `File: ${item.fileName}\n` +
       `Date: ${item.timestamp}\n` +
       `Language: ${item.language}\n` +
@@ -255,11 +261,11 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
       `Words: ${item.wordCount} | Characters: ${item.charCount || item.text.length}\n\n` +
       `Transcription:\n${item.text}`;
 
-    const blob = new Blob([content], { type: 'text/plain' });
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${item.fileName.replace(/\.[^/.]+$/, '')}_transcription.txt`;
+    a.download = `${item.fileName.replace(/\.[^/.]+$/, '')}_analysis.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -276,7 +282,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
 
     toast({
       title: "Download Started",
-      description: "Transcription file download started",
+      description: "Enhanced transcription report downloaded",
       variant: "default"
     });
   };
@@ -285,21 +291,26 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
     const selectedIndices = Array.from(selectedItems);
     const selectedTranscriptions = selectedIndices.map(index => filteredHistory[index]);
 
-    const content = selectedTranscriptions.map(item =>
-      `File: ${item.fileName}\n` +
-      `Date: ${item.timestamp}\n` +
-      `Language: ${item.language}\n` +
-      `Duration: ${item.duration}\n` +
-      `Words: ${item.wordCount} | Characters: ${item.charCount || item.text.length}\n\n` +
-      `Transcription:\n${item.text}\n\n` +
-      `${'='.repeat(80)}\n\n`
-    ).join('');
+    const content = selectedTranscriptions.map(item => {
+      // Use formattedContent if available, otherwise fallback to basic format
+      if (item.formattedContent) {
+        return `${item.formattedContent}\n\n${'='.repeat(80)}\n\n`;
+      } else {
+        return `File: ${item.fileName}\n` +
+          `Date: ${item.timestamp}\n` +
+          `Language: ${item.language}\n` +
+          `Duration: ${item.duration}\n` +
+          `Words: ${item.wordCount} | Characters: ${item.charCount || item.text.length}\n\n` +
+          `Transcription:\n${item.text}\n\n` +
+          `${'='.repeat(80)}\n\n`;
+      }
+    }).join('');
 
-    const blob = new Blob([content], { type: 'text/plain' });
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `transcriptions_${new Date().toISOString().split('T')[0]}.txt`;
+    a.download = `transcriptions_analysis_${new Date().toISOString().split('T')[0]}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -317,7 +328,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
 
     toast({
       title: "Download Started",
-      description: `${selectedIndices.length} transcription(s) downloaded`,
+      description: `${selectedIndices.length} enhanced transcription report(s) downloaded`,
       variant: "default"
     });
   };
@@ -389,14 +400,14 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
           <div>
             <CardTitle className="flex items-center space-x-2">
               <History className="h-5 w-5 text-primary" />
-              <span>{t('transcription.title')}</span>
+              <span>Transcription History</span>
             </CardTitle>
             <CardDescription>
-              {t('transcription.subtitle')}
+              Manage and filter your previous transcriptions
             </CardDescription>
           </div>
           <Badge variant="outline" className="ml-2">
-            {filteredHistory.length} {t('transcription.items')}
+            {filteredHistory.length} items
           </Badge>
         </div>
       </CardHeader>
@@ -407,7 +418,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder= {t('transcription.searchPlaceholder')}
+              placeholder="Search by filename or content..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -421,7 +432,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                 <SelectValue placeholder="Filter by language" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{t('transcription.AllLanguages')}</SelectItem>
+                <SelectItem value="all">All Languages</SelectItem>
                 {availableLanguages.map(lang => (
                   <SelectItem key={lang} value={lang}>
                     {getLanguageFlag(lang)} {lang}
@@ -435,11 +446,11 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                 <SelectValue placeholder="Filter by date" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{t('transcription.date1')}</SelectItem>
-                <SelectItem value="today">{t('transcription.date2')}</SelectItem>
-                <SelectItem value="week">{t('transcription.date3')}</SelectItem>
-                <SelectItem value="month">{t('transcription.date4')}</SelectItem>
-                <SelectItem value="custom">{t('transcription.date5')}</SelectItem>
+                <SelectItem value="all">All Time</SelectItem>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="week">This Week</SelectItem>
+                <SelectItem value="month">This Month</SelectItem>
+                <SelectItem value="custom">Custom Range</SelectItem>
               </SelectContent>
             </Select>
 
@@ -455,7 +466,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                 ) : (
                   <Square className="h-4 w-4 mr-1" />
                 )}
-                <span className="hidden sm:inline">{t('transcription.SelectAll')}</span>
+                <span className="hidden sm:inline">Select All</span>
                 <span className="sm:hidden">All</span>
               </Button>
             </div>
@@ -511,11 +522,11 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
               <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
                 <History className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h3 className="font-medium mb-2">{t('transcription.Notranscriptions')}</h3>
+              <h3 className="font-medium mb-2">No transcriptions found</h3>
               <p className="text-sm text-muted-foreground max-w-md mx-auto">
                 {history.length === 0
-                  ? t('transcription.NoTranscriptionsDesc')
-                  : t('transcription.NoTranscriptionsDesc2')
+                  ? "Start transcribing audio files to see them here"
+                  : "Try adjusting your search or filters"
                 }
               </p>
             </div>
