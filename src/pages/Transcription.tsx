@@ -16,6 +16,7 @@ interface AudioFile {
 }
 
 interface TranscriptionResult {
+  id: string;
   fileName: string;
   duration: string;
   language: string;
@@ -24,12 +25,21 @@ interface TranscriptionResult {
   audioUrl: string;
   wordCount: number;
   charCount: number;
+  downloaded?: boolean;
+  painSummary?: string;
+  gainSummary?: string;
+  fullTranscription: string;
+  formattedContent: string;
+  spokenLanguage?: string;
+  transcriptionTarget?: 'Thai' | 'English' | 'Both';
 }
 
 const Transcription = () => {
   const [apiStatus, setApiStatus] = useState<'ready' | 'pending' | 'error'>('pending');
   const [isDark, setIsDark] = useState(false);
   const [transcriptionResult, setTranscriptionResult] = useState<TranscriptionResult | null>(null);
+  const [spokenLanguage, setSpokenLanguage] = useState<string>('English');
+  const [targetLanguage, setTargetLanguage] = useState<'Thai' | 'English' | 'Both'>('English');
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -82,9 +92,14 @@ const Transcription = () => {
 
   const handleTranscriptionStart = async (audioFile: AudioFile) => {
     try {
-      const result = await transcribeAudio(audioFile, (progress) => {
-        console.log(`Transcription progress: ${progress}%`);
-      });
+      const result = await transcribeAudio(
+        audioFile, 
+        (progress) => {
+          console.log(`Transcription progress: ${progress}%`);
+        },
+        spokenLanguage,
+        targetLanguage
+      );
       
       setTranscriptionResult(result);
     } catch (error) {
@@ -112,6 +127,34 @@ const Transcription = () => {
             <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
               {t('transcription.subtitle')}
             </p>
+          </div>
+
+          {/* Language Settings */}
+          <div className="max-w-4xl mx-auto mb-6 lg:mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg bg-card border border-border/50">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Spoken Language</label>
+                <input
+                  type="text"
+                  value={spokenLanguage}
+                  onChange={(e) => setSpokenLanguage(e.target.value)}
+                  placeholder="e.g., English, Thai, Mandarin"
+                  className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Transcription Target</label>
+                <select
+                  value={targetLanguage}
+                  onChange={(e) => setTargetLanguage(e.target.value as 'Thai' | 'English' | 'Both')}
+                  className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm"
+                >
+                  <option value="English">English</option>
+                  <option value="Thai">Thai</option>
+                  <option value="Both">Both Languages</option>
+                </select>
+              </div>
+            </div>
           </div>
           
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
