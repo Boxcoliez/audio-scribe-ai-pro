@@ -1,4 +1,5 @@
 interface TranscriptionResult {
+  id: string;
   fileName: string;
   duration: string;
   language: string;
@@ -8,6 +9,12 @@ interface TranscriptionResult {
   wordCount: number;
   charCount: number;
   downloaded?: boolean;
+  painSummary?: string;
+  gainSummary?: string;
+  fullTranscription: string;
+  formattedContent: string;
+  spokenLanguage?: string;
+  transcriptionTarget?: 'Thai' | 'English' | 'Both';
 }
 
 interface AudioFile {
@@ -120,8 +127,150 @@ const transcribeWithWebSpeech = (audioFile: File): Promise<string> => {
   });
 };
 
-// Gemini AI transcription
-const transcribeWithGemini = async (audioFile: File, apiKey: string): Promise<string> => {
+// Enhanced Gemini AI transcription with Pain/Gain analysis
+const transcribeWithGemini = async (
+  audioFile: File, 
+  apiKey: string,
+  spokenLanguage: string = 'English',
+  targetLanguage: 'Thai' | 'English' | 'Both' = 'English'
+): Promise<{
+  transcription: string;
+  painSummary: string;
+  gainSummary: string;
+  detectedLanguage: string;
+}> => {
+  try {
+    const base64Audio = await audioToBase64(audioFile);
+    
+    // Create structured prompt for Pain/Gain analysis
+    const getPrompt = () => {
+      const basePrompt = `Please transcribe the following audio file. The speaker is likely speaking in ${spokenLanguage}.`;
+      
+      let transcriptionInstructions = '';
+      if (targetLanguage === 'Thai') {
+        transcriptionInstructions = 'Provide the transcription in Thai language.';
+      } else if (targetLanguage === 'English') {
+        transcriptionInstructions = 'Provide the transcription in English language.';
+      } else {
+        transcriptionInstructions = 'Provide the transcription in both Thai and English languages, clearly separated.';
+      }
+      
+      return `${basePrompt} ${transcriptionInstructions}
+
+Then, analyze the content and summarize the key "Pain" and "Gain" themes found in the audio.
+
+Format your response EXACTLY as follows:
+
+TRANSCRIPTION:
+[Full transcription here]
+
+ANALYSIS:
+Pain: [What problems, challenges, pain points, or difficulties were mentioned - be specific and detailed]
+Gain: [What solutions, benefits, positive outcomes, opportunities, or advantages were mentioned - be specific and detailed]
+
+LANGUAGE: [Detected primary language of the speaker]`;
+    };
+    
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            {
+              text: getPrompt()
+            },
+            {
+              inline_data: {
+                mime_type: audioFile.type,
+                data: base64Audio
+              }
+            }
+          ]
+        }],
+        generationConfig: {
+          temperature: 0.2,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 8192,
+        }
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      // Fallback to gemini-1.5-flash if 2.0 fails
+      if (response.status === 404 || errorData.error?.message?.includes('not found')) {
+        return await transcribeWithGeminiLegacy(audioFile, apiKey, spokenLanguage, targetLanguage);
+      }
+      throw new Error(errorData.error?.message || 'Gemini API request failed');
+    }
+
+    const data = await response.json();
+    const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    
+    if (!responseText) {
+      throw new Error('No transcription received from Gemini API');
+    }
+
+    // Parse the structured response
+    const sections = responseText.split(/(?:TRANSCRIPTION:|ANALYSIS:|LANGUAGE:)/i);
+    
+    let transcription = '';
+    let painSummary = 'No specific pain points identified';
+    let gainSummary = 'No specific benefits identified';
+    let detectedLanguage = spokenLanguage;
+    
+    if (sections.length >= 2) {
+      transcription = sections[1].trim();
+      
+      if (sections.length >= 3) {
+        const analysisSection = sections[2].trim();
+        const painMatch = analysisSection.match(/Pain:\s*(.+?)(?=\nGain:|$)/is);
+        const gainMatch = analysisSection.match(/Gain:\s*(.+?)(?=\n|$)/is);
+        
+        if (painMatch) painSummary = painMatch[1].trim();
+        if (gainMatch) gainSummary = gainMatch[1].trim();
+      }
+      
+      if (sections.length >= 4) {
+        const languageSection = sections[3].trim();
+        if (languageSection) {
+          detectedLanguage = languageSection;
+        }
+      }
+    } else {
+      // Fallback if parsing fails
+      transcription = responseText.trim();
+    }
+
+    return {
+      transcription: transcription || responseText.trim(),
+      painSummary,
+      gainSummary,
+      detectedLanguage
+    };
+  } catch (error) {
+    console.error('Gemini 2.0 transcription error:', error);
+    // Fallback to legacy version
+    return await transcribeWithGeminiLegacy(audioFile, apiKey, spokenLanguage, targetLanguage);
+  }
+};
+
+// Legacy fallback for Gemini 1.5 Flash
+const transcribeWithGeminiLegacy = async (
+  audioFile: File,
+  apiKey: string,
+  spokenLanguage: string = 'English',
+  targetLanguage: 'Thai' | 'English' | 'Both' = 'English'
+): Promise<{
+  transcription: string;
+  painSummary: string;
+  gainSummary: string;
+  detectedLanguage: string;
+}> => {
   try {
     const base64Audio = await audioToBase64(audioFile);
     
@@ -134,7 +283,11 @@ const transcribeWithGemini = async (audioFile: File, apiKey: string): Promise<st
         contents: [{
           parts: [
             {
-              text: "Please transcribe this audio file. Provide only the transcribed text without any additional commentary or formatting."
+              text: `Please transcribe this audio file. The speaker is likely speaking in ${spokenLanguage}. ${
+                targetLanguage === 'Thai' ? 'Provide the transcription in Thai.' :
+                targetLanguage === 'English' ? 'Provide the transcription in English.' :
+                'Provide the transcription in both Thai and English.'
+              } Then briefly analyze any pain points and benefits mentioned.`
             },
             {
               inline_data: {
@@ -165,9 +318,14 @@ const transcribeWithGemini = async (audioFile: File, apiKey: string): Promise<st
       throw new Error('No transcription received from Gemini API');
     }
 
-    return transcribedText.trim();
+    return {
+      transcription: transcribedText.trim(),
+      painSummary: 'Analysis not available with legacy model',
+      gainSummary: 'Analysis not available with legacy model',
+      detectedLanguage: spokenLanguage
+    };
   } catch (error) {
-    console.error('Gemini transcription error:', error);
+    console.error('Gemini legacy transcription error:', error);
     throw error;
   }
 };
@@ -197,10 +355,12 @@ const detectLanguage = (text: string): string => {
   return 'English';
 };
 
-// Main transcription function
+// Enhanced main transcription function with Pain/Gain analysis
 export const transcribeAudio = async (
   audioFile: AudioFile,
-  onProgress: (progress: number) => void
+  onProgress: (progress: number) => void,
+  spokenLanguage: string = 'English',
+  targetLanguage: 'Thai' | 'English' | 'Both' = 'English'
 ): Promise<TranscriptionResult> => {
   const apiKey = sessionStorage.getItem('gemini_api_key');
   
@@ -223,13 +383,18 @@ export const transcribeAudio = async (
     }
   }
   
-  let transcribedText = '';
+  let transcriptionResult: {
+    transcription: string;
+    painSummary: string;
+    gainSummary: string;
+    detectedLanguage: string;
+  };
   let transcriptionMethod = 'Gemini AI';
   
   try {
-    // Try Gemini AI first
+    // Try Gemini AI first with Pain/Gain analysis
     onProgress(40);
-    transcribedText = await transcribeWithGemini(fileToProcess, apiKey);
+    transcriptionResult = await transcribeWithGemini(fileToProcess, apiKey, spokenLanguage, targetLanguage);
     onProgress(80);
   } catch (geminiError) {
     console.warn('Gemini transcription failed, trying Web Speech API:', geminiError);
@@ -237,7 +402,13 @@ export const transcribeAudio = async (
     try {
       // Fallback to Web Speech API
       onProgress(50);
-      transcribedText = await transcribeWithWebSpeech(fileToProcess);
+      const webSpeechText = await transcribeWithWebSpeech(fileToProcess);
+      transcriptionResult = {
+        transcription: webSpeechText,
+        painSummary: 'Analysis not available with Web Speech API',
+        gainSummary: 'Analysis not available with Web Speech API',
+        detectedLanguage: detectLanguage(webSpeechText)
+      };
       transcriptionMethod = 'Web Speech API';
       onProgress(80);
     } catch (webSpeechError) {
@@ -248,11 +419,13 @@ export const transcribeAudio = async (
 
   onProgress(90);
 
+  const transcribedText = transcriptionResult.transcription;
+  
   if (!transcribedText || transcribedText.length < 10) {
     throw new Error('Transcription result is too short or empty. Please try with a clearer audio file.');
   }
 
-  const language = detectLanguage(transcribedText);
+  const language = transcriptionResult.detectedLanguage || detectLanguage(transcribedText);
   
   // More accurate word count calculation
   const wordCount = transcribedText
@@ -261,7 +434,29 @@ export const transcribeAudio = async (
     .filter(word => word.length > 0 && /\S/.test(word))
     .length;
 
+  // Generate formatted content for download
+  const formattedContent = generateFormattedContent({
+    fileName: audioFile.file.name,
+    timestamp: new Date().toLocaleString(),
+    language,
+    duration: audioFile.duration ? 
+      `${Math.floor(audioFile.duration / 60)}:${Math.floor(audioFile.duration % 60).toString().padStart(2, '0')}` : 
+      '0:00',
+    wordCount,
+    charCount: transcribedText.length,
+    spokenLanguage,
+    targetLanguage,
+    fullTranscription: transcribedText,
+    painSummary: transcriptionResult.painSummary,
+    gainSummary: transcriptionResult.gainSummary,
+    transcriptionMethod
+  });
+
+  // Generate unique ID
+  const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
   const result: TranscriptionResult = {
+    id,
     fileName: audioFile.file.name,
     duration: audioFile.duration ? 
       `${Math.floor(audioFile.duration / 60)}:${Math.floor(audioFile.duration % 60).toString().padStart(2, '0')}` : 
@@ -272,6 +467,12 @@ export const transcribeAudio = async (
     audioUrl: audioFile.url,
     wordCount,
     charCount: transcribedText.length,
+    painSummary: transcriptionResult.painSummary,
+    gainSummary: transcriptionResult.gainSummary,
+    fullTranscription: transcribedText,
+    formattedContent,
+    spokenLanguage,
+    transcriptionTarget: targetLanguage
   };
 
   onProgress(100);
@@ -282,6 +483,73 @@ export const transcribeAudio = async (
   localStorage.setItem('transcription_history', JSON.stringify(history.slice(0, 100))); // Keep last 100
   
   return result;
+};
+
+// Generate formatted content for download
+const generateFormattedContent = (data: {
+  fileName: string;
+  timestamp: string;
+  language: string;
+  duration: string;
+  wordCount: number;
+  charCount: number;
+  spokenLanguage?: string;
+  targetLanguage?: 'Thai' | 'English' | 'Both';
+  fullTranscription: string;
+  painSummary: string;
+  gainSummary: string;
+  transcriptionMethod: string;
+}): string => {
+  return `
+AUDIO TRANSCRIPTION REPORT
+${'='.repeat(50)}
+
+File Information:
+• File Name: ${data.fileName}
+• Date: ${data.timestamp}
+• Duration: ${data.duration}
+• Detected Language: ${data.language}
+• Spoken Language: ${data.spokenLanguage || 'Not specified'}
+• Target Language: ${data.targetLanguage || 'Not specified'}
+• Transcription Method: ${data.transcriptionMethod}
+
+Statistics:
+• Word Count: ${data.wordCount}
+• Character Count: ${data.charCount}
+
+${'='.repeat(50)}
+FULL TRANSCRIPTION
+${'='.repeat(50)}
+
+${data.fullTranscription}
+
+${'='.repeat(50)}
+PAIN & GAIN ANALYSIS
+${'='.repeat(50)}
+
+🔴 PAIN POINTS:
+${data.painSummary}
+
+🟢 BENEFITS & GAINS:
+${data.gainSummary}
+
+${'='.repeat(50)}
+Generated on ${data.timestamp}
+  `.trim();
+};
+
+// Helper function to convert date format from DD/MM/YYYY to YYYY-MM-DD
+export const convertDateFormat = (ddmmyyyy: string): string => {
+  const [day, month, year] = ddmmyyyy.split('/');
+  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+};
+
+// Helper function to format date as DD/MM/YYYY
+export const formatDateDDMMYYYY = (date: Date): string => {
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear().toString();
+  return `${day}/${month}/${year}`;
 };
 
 // Declare Web Speech API types

@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TranscriptionResult {
+  id: string;
   fileName: string;
   duration: string;
   language: string;
@@ -15,8 +16,14 @@ interface TranscriptionResult {
   timestamp: string;
   audioUrl: string;
   wordCount: number;
-  charCount?: number;
+  charCount: number;
   downloaded?: boolean;
+  painSummary?: string;
+  gainSummary?: string;
+  fullTranscription: string;
+  formattedContent: string;
+  spokenLanguage?: string;
+  transcriptionTarget?: 'Thai' | 'English' | 'Both';
 }
 
 interface TranscriptionResultsProps {
@@ -61,13 +68,13 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
   };
 
   const downloadText = () => {
-    if (!result?.text) return;
+    if (!result?.formattedContent) return;
 
-    const blob = new Blob([result.text], { type: 'text/plain' });
+    const blob = new Blob([result.formattedContent], { type: 'text/plain; charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${result.fileName.replace(/\.[^/.]+$/, '')}_transcription.txt`;
+    a.download = `${result.fileName.replace(/\.[^/.]+$/, '')}_analysis.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -76,7 +83,7 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
     // Mark as downloaded in history
     const history = JSON.parse(localStorage.getItem('transcription_history') || '[]');
     const updatedHistory = history.map((item: any) => 
-      item.timestamp === result.timestamp && item.fileName === result.fileName 
+      item.id === result.id 
         ? { ...item, downloaded: true } 
         : item
     );
@@ -84,7 +91,7 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
 
     toast({
       title: "Download Started",
-      description: "Transcription file download started",
+      description: "Enhanced transcription report downloaded",
       variant: "default"
     });
   };
@@ -199,6 +206,54 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
             onPause={() => setIsPlaying(false)}
           />
         </div>
+
+        {/* Pain/Gain Analysis */}
+        {(result.painSummary || result.gainSummary) && (
+          <div className="space-y-4">
+            <h3 className="font-medium text-lg">Pain & Gain Analysis</h3>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {result.painSummary && result.painSummary !== 'No specific pain points identified' && (
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 rounded-full bg-destructive"></div>
+                    <h4 className="font-medium text-sm">Pain Points</h4>
+                  </div>
+                  <div className="p-4 rounded-lg bg-destructive/5 border border-destructive/20">
+                    <p className="text-sm text-muted-foreground">{result.painSummary}</p>
+                  </div>
+                </div>
+              )}
+              
+              {result.gainSummary && result.gainSummary !== 'No specific benefits identified' && (
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 rounded-full bg-success"></div>
+                    <h4 className="font-medium text-sm">Benefits & Gains</h4>
+                  </div>
+                  <div className="p-4 rounded-lg bg-success/5 border border-success/20">
+                    <p className="text-sm text-muted-foreground">{result.gainSummary}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Language Settings */}
+        {(result.spokenLanguage || result.transcriptionTarget) && (
+          <div className="p-4 rounded-lg bg-muted/20 border border-border/50">
+            <h4 className="font-medium text-sm mb-2">Transcription Settings</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-muted-foreground">
+              {result.spokenLanguage && (
+                <div>Spoken Language: <span className="font-medium">{result.spokenLanguage}</span></div>
+              )}
+              {result.transcriptionTarget && (
+                <div>Target: <span className="font-medium">{result.transcriptionTarget}</span></div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Transcription Text */}
           <div className="space-y-3">

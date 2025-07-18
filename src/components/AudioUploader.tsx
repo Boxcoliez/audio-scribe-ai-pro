@@ -25,7 +25,7 @@ export const AudioUploader = ({ onTranscriptionStart, apiStatus }: AudioUploader
   const [isPlaying, setIsPlaying] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [transcriptionProgress, setTranscriptionProgress] = useState(0);
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const { toast } = useToast();
@@ -46,7 +46,7 @@ export const AudioUploader = ({ onTranscriptionStart, apiStatus }: AudioUploader
   };
 
   const validateFile = (file: File): boolean => {
-    const validTypes = ['audio/mp3', 'audio/wav', 'audio/m4a', 'audio/mpeg', 'audio/x-wav', 'video/mp4'];
+    const validTypes = ['audio/mp3', 'audio/wav', 'audio/mp4', 'audio/x-m4a','audio/m4a', 'audio/mpeg', 'audio/x-wav', 'video/mp4'];
     const maxSize = 25 * 1024 * 1024; // 25MB
 
     if (!validTypes.includes(file.type)) {
@@ -75,7 +75,7 @@ export const AudioUploader = ({ onTranscriptionStart, apiStatus }: AudioUploader
 
     const url = URL.createObjectURL(file);
     const audio = new Audio(url);
-    
+
     audio.addEventListener('loadedmetadata', () => {
       const newAudioFile: AudioFile = {
         file,
@@ -83,9 +83,9 @@ export const AudioUploader = ({ onTranscriptionStart, apiStatus }: AudioUploader
         duration: audio.duration,
         size: formatFileSize(file.size)
       };
-      
+
       setAudioFile(newAudioFile);
-      
+
       toast({
         title: "File Uploaded",
         description: `${file.name} (${formatFileSize(file.size)}) ready for transcription`,
@@ -97,7 +97,7 @@ export const AudioUploader = ({ onTranscriptionStart, apiStatus }: AudioUploader
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
-    
+
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
       handleFile(files[0]);
@@ -151,10 +151,10 @@ export const AudioUploader = ({ onTranscriptionStart, apiStatus }: AudioUploader
       }, 200);
 
       await onTranscriptionStart(audioFile);
-      
+
       clearInterval(progressInterval);
       setTranscriptionProgress(100);
-      
+
       // Clear the audio file after successful transcription
       setTimeout(() => removeFile(), 1000);
     } catch (error) {
@@ -185,11 +185,10 @@ export const AudioUploader = ({ onTranscriptionStart, apiStatus }: AudioUploader
         {/* Upload Area */}
         {!audioFile && (
           <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-300 cursor-pointer ${
-              isDragOver 
-                ? 'border-primary bg-gradient-hero' 
+            className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-300 cursor-pointer ${isDragOver
+                ? 'border-primary bg-gradient-hero'
                 : 'border-border hover:border-primary/50 hover:bg-gradient-hero/50'
-            }`}
+              }`}
             onDrop={handleDrop}
             onDragOver={(e) => {
               e.preventDefault();
@@ -202,14 +201,14 @@ export const AudioUploader = ({ onTranscriptionStart, apiStatus }: AudioUploader
               <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
                 <Upload className="h-8 w-8 text-primary" />
               </div>
-              
+
               <div>
                 <h3 className="text-lg font-medium">{t('audioUploader.dropHere')}</h3>
                 <p className="text-sm text-muted-foreground mt-1">
                   {t('audioUploader.clickToBrowse')}
                 </p>
               </div>
-              
+
               <div className="flex flex-wrap justify-center gap-2">
                 <Badge variant="outline">MP3</Badge>
                 <Badge variant="outline">WAV</Badge>
@@ -217,11 +216,11 @@ export const AudioUploader = ({ onTranscriptionStart, apiStatus }: AudioUploader
                 <Badge variant="outline">MP4</Badge>
               </div>
             </div>
-            
+
             <input
               ref={fileInputRef}
               type="file"
-              accept="audio/mp3,audio/wav,audio/m4a,audio/mpeg,audio/x-wav,video/mp4"
+              accept="audio/mp3,audio/wav,audio/mp4,audio/x-m4a,audio/mpeg,audio/x-wav,video/mp4"
               onChange={handleFileSelect}
               className="hidden"
             />
@@ -244,7 +243,7 @@ export const AudioUploader = ({ onTranscriptionStart, apiStatus }: AudioUploader
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-2">
                   <Button
                     variant="ghost"
