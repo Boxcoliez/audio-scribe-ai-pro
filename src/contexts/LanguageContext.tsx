@@ -116,7 +116,7 @@ const translations = {
     
     // Audio Uploader
     'audioUploader.title': 'Audio File Upload',
-    'audioUploader.subtitle': 'Upload your audio file for AI transcription (MP3, WAV, M4A - Max 25MB)',
+    'audioUploader.subtitle': 'Upload your audio file for AI transcription (MP3, WAV, M4A, MP4 - Max 25MB)',
     'audioUploader.dropHere': 'Drop your audio file here',
     'audioUploader.clickToBrowse': 'or click to browse files',
     'audioUploader.transcribing': 'Transcribing audio...',
@@ -272,7 +272,7 @@ const translations = {
     
     // Audio Uploader
     'audioUploader.title': 'อัปโหลดไฟล์เสียง',
-    'audioUploader.subtitle': 'อัปโหลดไฟล์เสียงของคุณเพื่อการถอดเสียงด้วย AI (MP3, WAV, M4A - สูงสุด 25MB)',
+    'audioUploader.subtitle': 'อัปโหลดไฟล์เสียงของคุณเพื่อการถอดเสียงด้วย AI (MP3, WAV, M4A, MP4- สูงสุด 25MB)',
     'audioUploader.dropHere': 'วางไฟล์เสียงของคุณที่นี่',
     'audioUploader.clickToBrowse': 'หรือคลิกเพื่อเลือกไฟล์',
     'audioUploader.transcribing': 'กำลังถอดเสียง...',
