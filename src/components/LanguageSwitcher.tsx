@@ -1,5 +1,5 @@
-import enFlag from "@/assets/flags/english.png";
-import thFlag from "@/assets/flags/thai.jpg";
+import enFlag from "@/assets/flags/gb.png";
+import thFlag from "@/assets/flags/th.png";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {

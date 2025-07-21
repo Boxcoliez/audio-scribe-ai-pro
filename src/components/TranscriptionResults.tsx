@@ -7,6 +7,36 @@ import { Copy, Download, Play, Pause, FileText, Globe, Clock, Hash } from "lucid
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 
+// Import flag images
+import thFlag from "@/assets/flags/th.png"; // Thai
+import usFlag from "@/assets/flags/gb.png"; // English
+import jpFlag from "@/assets/flags/jp.png"; // Japanese
+import cnFlag from "@/assets/flags/cn.png"; // Chinese
+import krFlag from "@/assets/flags/kr.png"; // Korean
+import esFlag from "@/assets/flags/es.png"; // Spanish
+import frFlag from "@/assets/flags/fr.png"; // French
+import deFlag from "@/assets/flags/de.png"; // German
+import itFlag from "@/assets/flags/it.png"; // Italian
+import ptFlag from "@/assets/flags/pt.png"; // Portuguese
+import ruFlag from "@/assets/flags/ru.png"; // Russian
+import vnFlag from "@/assets/flags/vn.png"; // Vietnamese
+import inFlag from "@/assets/flags/in.png"; // Hindi
+import saFlag from "@/assets/flags/sa.png"; // Arabic
+import ilFlag from "@/assets/flags/il.png"; // Hebrew
+import trFlag from "@/assets/flags/tr.png"; // Turkish
+import idFlag from "@/assets/flags/id.png"; // Indonesian
+import myFlag from "@/assets/flags/my.png"; // Malay
+import phFlag from "@/assets/flags/ph.png"; // Filipino
+import irFlag from "@/assets/flags/ir.png"; // Persian
+import nlFlag from "@/assets/flags/nl.png"; // Dutch
+import uaFlag from "@/assets/flags/ua.png"; // Ukrainian
+import plFlag from "@/assets/flags/pl.png"; // Polish
+import keFlag from "@/assets/flags/ke.png"; // Swahili (Kenya)
+import zaFlag from "@/assets/flags/za.png"; // Zulu (South Africa)
+import grFlag from "@/assets/flags/gr.png"; // Greek
+
+
+
 interface TranscriptionResult {
   id: string;
   fileName: string;
@@ -97,17 +127,60 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
   };
 
   const getLanguageFlag = (language: string) => {
-    const flags: { [key: string]: string } = {
-      'Thai': '🇹🇭',
-      'English': '🇺🇸',
-      'Japanese': '🇯🇵',
-      'Chinese': '🇨🇳',
-      'Korean': '🇰🇷',
-      'Spanish': '🇪🇸',
-      'French': '🇫🇷',
-      'German': '🇩🇪'
-    };
-    return flags[language] || '🌍';
+  const flagMap: { [key: string]: string } = {
+    'Thai': thFlag,
+    'English': usFlag,
+    'Japanese': jpFlag,
+    'Chinese': cnFlag,
+    'Mandarin': cnFlag,
+    'Cantonese': cnFlag,
+    'Simplified Chinese': cnFlag,
+    'Traditional Chinese': cnFlag,
+    'Korean': krFlag,
+    'Spanish': esFlag,
+    'Latin American Spanish': esFlag,
+    'European Spanish': esFlag,
+    'French': frFlag,
+    'German': deFlag,
+    'Italian': itFlag,
+    'Portuguese': ptFlag,
+    'Brazilian Portuguese': ptFlag,
+    'Russian': ruFlag,
+    'Vietnamese': vnFlag,
+    'Hindi': inFlag,
+    'Arabic': saFlag,
+    'Hebrew': ilFlag,
+    'Turkish': trFlag,
+    'Indonesian': idFlag,
+    'Malay': myFlag,
+    'Filipino': phFlag,
+    'Persian': irFlag,
+    'Dutch': nlFlag,
+    'Ukrainian': uaFlag,
+    'Polish': plFlag,
+    'Swahili': keFlag,
+    'Zulu': zaFlag,
+    'Greek': grFlag,
+  };
+
+  return flagMap[language] || null;
+};
+
+
+  const FlagImage = ({ language, size = "w-6 h-4" }: { language: string; size?: string }) => {
+    const flagSrc = getLanguageFlag(language);
+    
+    if (!flagSrc) {
+      return <Globe className="h-4 w-4 text-muted-foreground" />;
+    }
+
+    return (
+      <img
+        src={flagSrc}
+        alt={`${language} flag`}
+        className={`${size} object-cover rounded-sm border border-border/20 shadow-sm`}
+      />
+    );
   };
 
   if (!result) {
@@ -170,8 +243,9 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
           </div>
           <div className="space-y-2">
             <div className="flex items-center space-x-2 text-sm">
-              <Globe className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              <span>{getLanguageFlag(result.language)} {result.language}</span>
+              <Globe className="h-4 w-4 text-muted-foreground" />
+              <FlagImage language={result.language} />
+              <span className="font-medium">{result.language}</span>
             </div>
             <div className="text-sm text-muted-foreground">
               {new Date(result.timestamp).toLocaleString()}
@@ -310,11 +384,10 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
           </div>
           
           <div className="text-center p-3 sm:p-4 rounded-lg bg-card border border-border/50 col-span-2 sm:col-span-1">
-            <div className="flex items-center justify-center space-x-1 mb-1">
-              <Globe className="h-4 w-4 text-primary" />
-              <span className="font-semibold text-base sm:text-lg">{getLanguageFlag(result.language)}</span>
+            <div className="flex items-center justify-center space-x-2 mb-2">
+              <FlagImage language={result.language} size="w-8 h-6" />
             </div>
-            <div className="text-xs text-muted-foreground">{result.language}</div>
+            <div className="text-xs text-muted-foreground font-medium">{result.language}</div>
           </div>
         </div>
 
