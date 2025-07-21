@@ -28,6 +28,35 @@ import {
   Clock
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+// Import flag images
+import thFlag from "@/assets/flags/th.png"; // Thai
+import usFlag from "@/assets/flags/gb.png"; // English
+import jpFlag from "@/assets/flags/jp.png"; // Japanese
+import cnFlag from "@/assets/flags/cn.png"; // Chinese
+import krFlag from "@/assets/flags/kr.png"; // Korean
+import esFlag from "@/assets/flags/es.png"; // Spanish
+import frFlag from "@/assets/flags/fr.png"; // French
+import deFlag from "@/assets/flags/de.png"; // German
+import itFlag from "@/assets/flags/it.png"; // Italian
+import ptFlag from "@/assets/flags/pt.png"; // Portuguese
+import ruFlag from "@/assets/flags/ru.png"; // Russian
+import vnFlag from "@/assets/flags/vn.png"; // Vietnamese
+import inFlag from "@/assets/flags/in.png"; // Hindi
+import saFlag from "@/assets/flags/sa.png"; // Arabic
+import ilFlag from "@/assets/flags/il.png"; // Hebrew
+import trFlag from "@/assets/flags/tr.png"; // Turkish
+import idFlag from "@/assets/flags/id.png"; // Indonesian
+import myFlag from "@/assets/flags/my.png"; // Malay
+import phFlag from "@/assets/flags/ph.png"; // Filipino
+import irFlag from "@/assets/flags/ir.png"; // Persian
+import nlFlag from "@/assets/flags/nl.png"; // Dutch
+import uaFlag from "@/assets/flags/ua.png"; // Ukrainian
+import plFlag from "@/assets/flags/pl.png"; // Polish
+import keFlag from "@/assets/flags/ke.png"; // Swahili (Kenya)
+import zaFlag from "@/assets/flags/za.png"; // Zulu (South Africa)
+import grFlag from "@/assets/flags/gr.png"; // Greek
 
 interface TranscriptionResult {
   id: string;
@@ -65,6 +94,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingName, setEditingName] = useState('');
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   // Load history from localStorage
   useEffect(() => {
@@ -380,17 +410,59 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
   };
 
   const getLanguageFlag = (language: string) => {
-    const flags: { [key: string]: string } = {
-      'Thai': '🇹🇭',
-      'English': '🇺🇸',
-      'Japanese': '🇯🇵',
-      'Chinese': '🇨🇳',
-      'Korean': '🇰🇷',
-      'Spanish': '🇪🇸',
-      'French': '🇫🇷',
-      'German': '🇩🇪'
+    const flagMap: { [key: string]: string } = {
+      'Thai': thFlag,
+      'English': usFlag,
+      'Japanese': jpFlag,
+      'Chinese': cnFlag,
+      'Mandarin': cnFlag,
+      'Cantonese': cnFlag,
+      'Simplified Chinese': cnFlag,
+      'Traditional Chinese': cnFlag,
+      'Korean': krFlag,
+      'Spanish': esFlag,
+      'Latin American Spanish': esFlag,
+      'European Spanish': esFlag,
+      'French': frFlag,
+      'German': deFlag,
+      'Italian': itFlag,
+      'Portuguese': ptFlag,
+      'Brazilian Portuguese': ptFlag,
+      'Russian': ruFlag,
+      'Vietnamese': vnFlag,
+      'Hindi': inFlag,
+      'Arabic': saFlag,
+      'Hebrew': ilFlag,
+      'Turkish': trFlag,
+      'Indonesian': idFlag,
+      'Malay': myFlag,
+      'Filipino': phFlag,
+      'Persian': irFlag,
+      'Dutch': nlFlag,
+      'Ukrainian': uaFlag,
+      'Polish': plFlag,
+      'Swahili': keFlag,
+      'Zulu': zaFlag,
+      'Greek': grFlag,
     };
-    return flags[language] || '🌍';
+
+    return flagMap[language] || null;
+  };
+
+  const FlagImage = ({ language, size = "w-6 h-4" }: { language: string; size?: string }) => {
+    const flagSrc = getLanguageFlag(language);
+    
+    if (!flagSrc) {
+      return <Globe className="h-4 w-4 text-muted-foreground" />;
+    }
+
+    return (
+      <img
+        src={flagSrc}
+        alt={`${language} flag`}
+        className={`${size} object-cover rounded-sm border border-border/20 shadow-sm`}
+      />
+    );
   };
 
   return (
@@ -435,7 +507,10 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                 <SelectItem value="all">All Languages</SelectItem>
                 {availableLanguages.map(lang => (
                   <SelectItem key={lang} value={lang}>
-                    {getLanguageFlag(lang)} {lang}
+                    <div className="flex items-center space-x-2">
+                      <FlagImage language={lang} size="w-5 h-3" />
+                      <span>{lang}</span>
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -581,8 +656,9 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                             {item.fileName}
                           </h4>
                         )}
-                        <Badge variant="outline" className="text-xs">
-                          {getLanguageFlag(item.language)} {item.language}
+                        <Badge variant="outline" className="text-xs flex items-center space-x-1">
+                          <FlagImage language={item.language} size="w-4 h-3" />
+                          <span>{item.language}</span>
                         </Badge>
                         {item.downloaded && (
                           <Badge className="text-xs bg-blue-100 text-blue-800">
