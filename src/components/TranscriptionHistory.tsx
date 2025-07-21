@@ -221,8 +221,8 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
     setSelectedItems(new Set());
 
     toast({
-      title: "Items Deleted",
-      description: `${selectedIndices.length} transcription(s) deleted`,
+      title: t('history.itemsDeleted'),
+      description: `${selectedIndices.length} ${t('history.itemsDeletedDesc')}`,
       variant: "default"
     });
   };
@@ -239,8 +239,8 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
       localStorage.setItem('transcription_history', JSON.stringify(updatedHistory));
 
       toast({
-        title: "Item Deleted",
-        description: "Transcription deleted successfully",
+        title: t('history.itemDeleted'),
+        description: t('history.itemDeletedDesc'),
         variant: "default"
       });
     }
@@ -266,8 +266,8 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
         localStorage.setItem('transcription_history', JSON.stringify(updatedHistory));
 
         toast({
-          title: "Name Updated",
-          description: "File name updated successfully",
+          title: t('history.nameUpdated'),
+          description: t('history.nameUpdatedDesc'),
           variant: "default"
         });
       }
@@ -311,8 +311,8 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
     localStorage.setItem('transcription_history', JSON.stringify(updatedHistory));
 
     toast({
-      title: "Download Started",
-      description: "Enhanced transcription report downloaded",
+      title: t('history.downloadStarted'),
+      description: t('history.downloadDesc'),
       variant: "default"
     });
   };
@@ -357,8 +357,8 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
     localStorage.setItem('transcription_history', JSON.stringify(updatedHistory));
 
     toast({
-      title: "Download Started",
-      description: `${selectedIndices.length} enhanced transcription report(s) downloaded`,
+      title: t('history.downloadStarted'),
+      description: `${selectedIndices.length} ${t('history.downloadMultipleDesc')}`,
       variant: "default"
     });
   };
@@ -367,14 +367,14 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
     try {
       await navigator.clipboard.writeText(text);
       toast({
-        title: "Text Copied",
-        description: "Transcription text copied to clipboard",
+        title: t('history.textCopied'),
+        description: t('history.textCopiedDesc'),
         variant: "default"
       });
     } catch (error) {
       toast({
-        title: "Copy Failed",
-        description: "Failed to copy text to clipboard",
+        title: t('history.copyFailed'),
+        description: t('history.copyFailedDesc'),
         variant: "destructive"
       });
     }
@@ -400,8 +400,8 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
         }).catch((error) => {
           console.error('Audio play failed:', error);
           toast({
-            title: "Audio Playback Error",
-            description: "Unable to play audio file. The file may be corrupted or in an unsupported format.",
+            title: t('history.audioError'),
+            description: t('history.audioErrorDesc'),
             variant: "destructive"
           });
         });
@@ -472,14 +472,14 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
           <div>
             <CardTitle className="flex items-center space-x-2">
               <History className="h-5 w-5 text-primary" />
-              <span>Transcription History</span>
+              <span>{t('history.title')}</span>
             </CardTitle>
             <CardDescription>
-              Manage and filter your previous transcriptions
+              {t('history.managePrevious')}
             </CardDescription>
           </div>
           <Badge variant="outline" className="ml-2">
-            {filteredHistory.length} items
+            {filteredHistory.length} {t('history.items')}
           </Badge>
         </div>
       </CardHeader>
@@ -490,7 +490,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search by filename or content..."
+              placeholder={t('history.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -501,10 +501,10 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <Select value={languageFilter} onValueChange={setLanguageFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="Filter by language" />
+                <SelectValue placeholder={t('history.filterLanguage')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Languages</SelectItem>
+                <SelectItem value="all">{t('history.allLanguages')}</SelectItem>
                 {availableLanguages.map(lang => (
                   <SelectItem key={lang} value={lang}>
                     <div className="flex items-center space-x-2">
@@ -518,14 +518,14 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
 
             <Select value={dateFilter} onValueChange={setDateFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="Filter by date" />
+                <SelectValue placeholder={t('history.filterDate')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Time</SelectItem>
-                <SelectItem value="today">Today</SelectItem>
-                <SelectItem value="week">This Week</SelectItem>
-                <SelectItem value="month">This Month</SelectItem>
-                <SelectItem value="custom">Custom Range</SelectItem>
+                <SelectItem value="all">{t('history.allTime')}</SelectItem>
+                <SelectItem value="today">{t('history.today')}</SelectItem>
+                <SelectItem value="week">{t('history.thisWeek')}</SelectItem>
+                <SelectItem value="month">{t('history.thisMonth')}</SelectItem>
+                <SelectItem value="custom">{t('history.customRange')}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -541,8 +541,8 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                 ) : (
                   <Square className="h-4 w-4 mr-1" />
                 )}
-                <span className="hidden sm:inline">Select All</span>
-                <span className="sm:hidden">All</span>
+                <span className="hidden sm:inline">{t('history.selectAll')}</span>
+                <span className="sm:hidden">{t('history.all')}</span>
               </Button>
             </div>
           </div>
@@ -554,13 +554,13 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                 type="date"
                 value={customDateRange.start}
                 onChange={(e) => setCustomDateRange(prev => ({ ...prev, start: e.target.value }))}
-                placeholder="Start date"
+                placeholder={t('history.startDate')}
               />
               <Input
                 type="date"
                 value={customDateRange.end}
                 onChange={(e) => setCustomDateRange(prev => ({ ...prev, end: e.target.value }))}
-                placeholder="End date"
+                placeholder={t('history.endDate')}
               />
             </div>
           )}
@@ -576,7 +576,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
               className="flex-1 sm:flex-none"
             >
               <Download className="h-4 w-4 mr-1" />
-              Download ({selectedItems.size})
+              {t('history.download')} ({selectedItems.size})
             </Button>
             <Button
               variant="destructive"
@@ -585,7 +585,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
               className="flex-1 sm:flex-none"
             >
               <Trash2 className="h-4 w-4 mr-1" />
-              Delete ({selectedItems.size})
+              {t('history.delete')} ({selectedItems.size})
             </Button>
           </div>
         )}
@@ -597,11 +597,11 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
               <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
                 <History className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h3 className="font-medium mb-2">No transcriptions found</h3>
+              <h3 className="font-medium mb-2">{t('history.noResults')}</h3>
               <p className="text-sm text-muted-foreground max-w-md mx-auto">
                 {history.length === 0
-                  ? "Start transcribing audio files to see them here"
-                  : "Try adjusting your search or filters"
+                  ? t('history.noHistory')
+                  : t('history.noResultsDesc')
                 }
               </p>
             </div>
@@ -660,11 +660,11 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                           <FlagImage language={item.language} size="w-4 h-3" />
                           <span>{item.language}</span>
                         </Badge>
-                        {item.downloaded && (
-                          <Badge className="text-xs bg-blue-100 text-blue-800">
-                            Downloaded
-                          </Badge>
-                        )}
+                         {item.downloaded && (
+                           <Badge className="text-xs bg-blue-100 text-blue-800">
+                             {t('transcriptionResults.downloadTxt')}ed
+                           </Badge>
+                         )}
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-muted-foreground mb-2">
@@ -748,7 +748,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                               className="flex-1 sm:flex-none"
                             >
                               <Copy className="h-4 w-4 mr-1" />
-                              Copy
+                              {t('history.copy')}
                             </Button>
                             <Button
                               variant="outline"
@@ -757,7 +757,7 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
                               className="flex-1 sm:flex-none"
                             >
                               <Download className="h-4 w-4 mr-1" />
-                              Download
+                              {t('history.download')}
                             </Button>
                           </div>
                         </div>
