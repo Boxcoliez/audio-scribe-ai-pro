@@ -1,3 +1,11 @@
+interface TranscriptionSegment {
+  timestamp: string;
+  speaker: string;
+  text: string;
+  startTime: number;
+  endTime: number;
+}
+
 interface TranscriptionResult {
   id: string;
   fileName: string;
@@ -15,6 +23,7 @@ interface TranscriptionResult {
   formattedContent: string;
   spokenLanguage?: string;
   transcriptionTarget?: 'Thai' | 'English' | 'Both';
+  segments?: TranscriptionSegment[];
 }
 
 interface AudioFile {
@@ -138,6 +147,7 @@ const transcribeWithGemini = async (
   painSummary: string;
   gainSummary: string;
   detectedLanguage: string;
+  segments: TranscriptionSegment[];
 }> => {
   try {
     const base64Audio = await audioToBase64(audioFile);
@@ -157,9 +167,17 @@ const transcribeWithGemini = async (
       
       return `${basePrompt} ${transcriptionInstructions}
 
+IMPORTANT: Please also provide timestamps and identify different speakers if there are multiple speakers. Format each segment with timing information.
+
 Then, analyze the content and summarize the key "Pain" and "Gain" themes found in the audio.
 
 Format your response EXACTLY as follows:
+
+SEGMENTS:
+[00:00:00] Speaker 1: [First segment text]
+[00:00:03] Speaker 1: [Second segment text]
+[00:00:06] Speaker 2: [Third segment text if different speaker]
+(Continue with all segments...)
 
 TRANSCRIPTION:
 [Full transcription here]
@@ -191,10 +209,10 @@ LANGUAGE: [Detected primary language of the speaker]`;
           ]
         }],
         generationConfig: {
-          temperature: 0.2,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 8192,
+          temperature: 0.1,
+          topK: 20,
+          topP: 0.8,
+          maxOutputTokens: 4096,
         }
       }),
     });
@@ -216,30 +234,37 @@ LANGUAGE: [Detected primary language of the speaker]`;
     }
 
     // Parse the structured response
-    const sections = responseText.split(/(?:TRANSCRIPTION:|ANALYSIS:|LANGUAGE:)/i);
+    const sections = responseText.split(/(?:SEGMENTS:|TRANSCRIPTION:|ANALYSIS:|LANGUAGE:)/i);
     
+    let segments: TranscriptionSegment[] = [];
     let transcription = '';
     let painSummary = 'No specific pain points identified';
     let gainSummary = 'No specific benefits identified';
     let detectedLanguage = spokenLanguage;
     
     if (sections.length >= 2) {
-      transcription = sections[1].trim();
-      
+      // Parse segments from the first section
       if (sections.length >= 3) {
-        const analysisSection = sections[2].trim();
-        const painMatch = analysisSection.match(/Pain:\s*(.+?)(?=\nGain:|$)/is);
-        const gainMatch = analysisSection.match(/Gain:\s*(.+?)(?=\n|$)/is);
+        segments = parseSegments(sections[1].trim());
+        transcription = sections[2].trim();
         
-        if (painMatch) painSummary = painMatch[1].trim();
-        if (gainMatch) gainSummary = gainMatch[1].trim();
-      }
-      
-      if (sections.length >= 4) {
-        const languageSection = sections[3].trim();
-        if (languageSection) {
-          detectedLanguage = languageSection;
+        if (sections.length >= 4) {
+          const analysisSection = sections[3].trim();
+          const painMatch = analysisSection.match(/Pain:\s*(.+?)(?=\nGain:|$)/is);
+          const gainMatch = analysisSection.match(/Gain:\s*(.+?)(?=\n|$)/is);
+          
+          if (painMatch) painSummary = painMatch[1].trim();
+          if (gainMatch) gainSummary = gainMatch[1].trim();
         }
+        
+        if (sections.length >= 5) {
+          const languageSection = sections[4].trim();
+          if (languageSection) {
+            detectedLanguage = languageSection;
+          }
+        }
+      } else {
+        transcription = sections[1].trim();
       }
     } else {
       // Fallback if parsing fails
@@ -250,7 +275,8 @@ LANGUAGE: [Detected primary language of the speaker]`;
       transcription: transcription || responseText.trim(),
       painSummary,
       gainSummary,
-      detectedLanguage
+      detectedLanguage,
+      segments
     };
   } catch (error) {
     console.error('Gemini 2.0 transcription error:', error);
@@ -270,6 +296,7 @@ const transcribeWithGeminiLegacy = async (
   painSummary: string;
   gainSummary: string;
   detectedLanguage: string;
+  segments: TranscriptionSegment[];
 }> => {
   try {
     const base64Audio = await audioToBase64(audioFile);
@@ -322,7 +349,8 @@ const transcribeWithGeminiLegacy = async (
       transcription: transcribedText.trim(),
       painSummary: 'Analysis not available with legacy model',
       gainSummary: 'Analysis not available with legacy model',
-      detectedLanguage: spokenLanguage
+      detectedLanguage: spokenLanguage,
+      segments: []
     };
   } catch (error) {
     console.error('Gemini legacy transcription error:', error);
@@ -353,6 +381,54 @@ const detectLanguage = (text: string): string => {
   if (germanWords.test(text)) return 'German';
   
   return 'English';
+};
+
+// Parse timestamp segments from AI response
+const parseSegments = (segmentsText: string): TranscriptionSegment[] => {
+  if (!segmentsText || segmentsText.trim().length === 0) {
+    return [];
+  }
+
+  const segments: TranscriptionSegment[] = [];
+  const lines = segmentsText.split('\n').filter(line => line.trim().length > 0);
+  
+  for (const line of lines) {
+    // Match format: [00:00:00] Speaker 1: text
+    const match = line.match(/\[(\d{2}:\d{2}:\d{2})\]\s*(Speaker\s*\d+|[^:]+):\s*(.+)/i);
+    if (match) {
+      const [, timestamp, speaker, text] = match;
+      const timeInSeconds = timeToSeconds(timestamp);
+      
+      segments.push({
+        timestamp,
+        speaker: speaker.trim(),
+        text: text.trim(),
+        startTime: timeInSeconds,
+        endTime: timeInSeconds + 3 // Default 3 second duration
+      });
+    }
+  }
+  
+  // Update end times based on next segment start times
+  for (let i = 0; i < segments.length - 1; i++) {
+    segments[i].endTime = segments[i + 1].startTime;
+  }
+  
+  return segments;
+};
+
+// Convert timestamp to seconds
+const timeToSeconds = (timestamp: string): number => {
+  const [hours, minutes, seconds] = timestamp.split(':').map(Number);
+  return hours * 3600 + minutes * 60 + seconds;
+};
+
+// Convert seconds to timestamp
+const secondsToTime = (seconds: number): string => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
 // Enhanced main transcription function with Pain/Gain analysis
@@ -388,6 +464,7 @@ export const transcribeAudio = async (
     painSummary: string;
     gainSummary: string;
     detectedLanguage: string;
+    segments: TranscriptionSegment[];
   };
   let transcriptionMethod = 'Gemini AI';
   
@@ -407,7 +484,8 @@ export const transcribeAudio = async (
         transcription: webSpeechText,
         painSummary: 'Analysis not available with Web Speech API',
         gainSummary: 'Analysis not available with Web Speech API',
-        detectedLanguage: detectLanguage(webSpeechText)
+        detectedLanguage: detectLanguage(webSpeechText),
+        segments: []
       };
       transcriptionMethod = 'Web Speech API';
       onProgress(80);
@@ -472,7 +550,8 @@ export const transcribeAudio = async (
     fullTranscription: transcribedText,
     formattedContent,
     spokenLanguage,
-    transcriptionTarget: targetLanguage
+    transcriptionTarget: targetLanguage,
+    segments: transcriptionResult.segments
   };
 
   onProgress(100);

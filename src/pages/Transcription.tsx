@@ -15,6 +15,14 @@ interface AudioFile {
   size: string;
 }
 
+interface TranscriptionSegment {
+  timestamp: string;
+  speaker: string;
+  text: string;
+  startTime: number;
+  endTime: number;
+}
+
 interface TranscriptionResult {
   id: string;
   fileName: string;
@@ -32,6 +40,7 @@ interface TranscriptionResult {
   formattedContent: string;
   spokenLanguage?: string;
   transcriptionTarget?: 'Thai' | 'English' | 'Both';
+  segments?: TranscriptionSegment[];
 }
 
 const Transcription = () => {
