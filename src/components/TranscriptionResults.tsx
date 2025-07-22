@@ -325,14 +325,14 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
         {/* Pain/Gain Analysis */}
         {(result.painSummary || result.gainSummary) && (
           <div className="space-y-4">
-            <h3 className="font-medium text-lg">Pain & Gain Analysis</h3>
+            <h3 className="font-medium text-lg">{t('transcriptionResults.painGainAnalysis')}</h3>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {result.painSummary && result.painSummary !== 'No specific pain points identified' && (
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <div className="w-3 h-3 rounded-full bg-destructive"></div>
-                    <h4 className="font-medium text-sm">Pain Points</h4>
+                    <h4 className="font-medium text-sm">{t('transcriptionResults.painPoints')}</h4>
                   </div>
                   <div className="p-4 rounded-lg bg-destructive/5 border border-destructive/20">
                     <p className="text-sm text-muted-foreground">{result.painSummary}</p>
@@ -344,7 +344,7 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <div className="w-3 h-3 rounded-full bg-success"></div>
-                    <h4 className="font-medium text-sm">Benefits & Gains</h4>
+                    <h4 className="font-medium text-sm">{t('transcriptionResults.benefitsGains')}</h4>
                   </div>
                   <div className="p-4 rounded-lg bg-success/5 border border-success/20">
                     <p className="text-sm text-muted-foreground">{result.gainSummary}</p>
