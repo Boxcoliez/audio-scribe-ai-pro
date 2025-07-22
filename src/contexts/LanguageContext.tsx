@@ -175,6 +175,9 @@ const translations = {
     'transcriptionResults.words': 'Words',
     'transcriptionResults.copyText': 'Copy Text',
     'transcriptionResults.downloadTxt': 'Download .txt',
+    'transcriptionResults.painGainAnalysis': 'Pain & Gain Analysis',
+    'transcriptionResults.painPoints': 'Pain Points',
+    'transcriptionResults.benefitsGains': 'Benefits & Gains',
     
     // History
     'historyComponent.title': 'Transcription History',
@@ -369,6 +372,9 @@ const translations = {
     'transcriptionResults.words': 'คำ',
     'transcriptionResults.copyText': 'คัดลอกข้อความ',
     'transcriptionResults.downloadTxt': 'ดาวน์โหลด .txt',
+    'transcriptionResults.painGainAnalysis': 'การวิเคราะห์ปัญหาและประโยชน์',
+    'transcriptionResults.painPoints': 'จุดเจ็บปวด',
+    'transcriptionResults.benefitsGains': 'ประโยชน์และผลลัพธ์',
     
     // History
     'historyComponent.title': 'ประวัติการถอดเสียง',
