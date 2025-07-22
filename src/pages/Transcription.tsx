@@ -72,13 +72,13 @@ const Transcription = () => {
     if (savedApiKey && savedApiKey.startsWith('AIza')) {
       setApiStatus('ready');
     } else {
-      // Redirect to settings if no API key
+      setApiStatus('error');
+      // Show warning instead of redirecting
       toast({
         title: t('transcription.apiKeyRequired'),
         description: t('transcription.apiKeyRequiredDesc'),
         variant: "destructive"
       });
-      navigate('/settings');
     }
   }, [navigate, toast, t]);
 
