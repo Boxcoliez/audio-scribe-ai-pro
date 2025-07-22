@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Key, CheckCircle, AlertCircle, ExternalLink, ArrowRight, FileAudio } from "lucide-react";
+import { Key, CheckCircle, AlertCircle, ExternalLink, ArrowRight, FileAudio, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -20,6 +20,16 @@ export const ApiSetup = ({ onApiKeyChange }: ApiSetupProps) => {
   const navigate = useNavigate();
   const { t } = useLanguage();
 
+    // Check for existing API key on mount
+  useEffect(() => {
+    const savedApiKey = sessionStorage.getItem('gemini_api_key');
+    if (savedApiKey && savedApiKey.startsWith('AIza')) {
+      setApiKey(savedApiKey);
+      setStatus('ready');
+      onApiKeyChange(savedApiKey, 'ready');
+    }
+  }, [onApiKeyChange]);
+  
   const validateApiKey = async () => {
     if (!apiKey.trim()) {
       toast({
@@ -87,6 +97,19 @@ export const ApiSetup = ({ onApiKeyChange }: ApiSetupProps) => {
     } finally {
       setIsValidating(false);
     }
+  };
+
+  const deleteApiKey = () => {
+    sessionStorage.removeItem('gemini_api_key');
+    setApiKey('');
+    setStatus('idle');
+    onApiKeyChange('', 'pending');
+    
+    toast({
+      title: t('apiSetup.apiKeyDeleted'),
+      description: t('apiSetup.apiKeyDeletedDesc'),
+      variant: "default"
+    });
   };
 
   const getStatusBadge = () => {
@@ -164,6 +187,17 @@ export const ApiSetup = ({ onApiKeyChange }: ApiSetupProps) => {
                 t('apiSetup.validateSave')
               )}
             </Button>
+            {status === 'ready' && (
+              <Button
+                onClick={deleteApiKey}
+                variant="outline"
+                size="icon"
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                title={t('apiSetup.deleteApiKey')}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
 
