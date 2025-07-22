@@ -154,22 +154,31 @@ const transcribeWithGemini = async (
     
     // Create structured prompt for Pain/Gain analysis
     const getPrompt = () => {
-      const basePrompt = `Please transcribe the following audio file. The speaker is likely speaking in ${spokenLanguage}.`;
-      
-      let transcriptionInstructions = '';
       if (targetLanguage === 'Thai') {
-        transcriptionInstructions = 'Provide the transcription in Thai language.';
+        return `กรุณาถอดเสียงไฟล์เสียงต่อไปนี้เป็นภาษาไทยทั้งหมด 
+        สำคัญ: โปรดระบุเวลาและระบุผู้พูดที่แตกต่างกันหากมีผู้พูดหลายคน จัดรูปแบบแต่ละส่วนด้วยข้อมูลเวลา
+        รวมถึงส่วนวิเคราะห์ "Pain" และ "Gain" ห้ามมีภาษาอังกฤษหรือคำแปลในวงเล็บ
+
+จัดรูปแบบผลลัพธ์ดังนี้:
+
+SEGMENTS:
+[00:00:00] ผู้พูด 1: [ข้อความกลุ่มแรก]
+[00:00:03] ผู้พูด 1: [ข้อความกลุ่มที่สอง]
+[00:00:06] ผู้พูด 2: [ข้อความกลุ่มที่สาม หากผู้พูดคนละคน]
+(ดำเนินการต่อกับทุกกลุ่ม...)
+
+TRANSCRIPTION:
+[ข้อความถอดเสียงเป็นภาษาไทย]
+
+ANALYSIS:
+Pain: [ปัญหา ความท้าทาย จุดเจ็บปวด หรือความยากลำบากใดที่ได้รับการกล่าวถึง - ให้ระบุเจาะจงและให้รายละเอียดเป็นภาษาไทย]
+Gain: [มีการกล่าวถึงวิธีแก้ปัญหา ประโยชน์ ผลลัพธ์เชิงบวก โอกาส หรือข้อดีใดบ้าง - ให้ระบุและให้รายละเอียดเป็นภาษาไทย]
+
+LANGUAGE: [ตรวจพบภาษาหลักของผู้พูด]`;
       } else if (targetLanguage === 'English') {
-        transcriptionInstructions = 'Provide the transcription in English language.';
-      } else {
-        transcriptionInstructions = 'Provide the transcription in both Thai and English languages, clearly separated.';
-      }
-      
-      return `${basePrompt} ${transcriptionInstructions}
-
-IMPORTANT: Please also provide timestamps and identify different speakers if there are multiple speakers. Format each segment with timing information.
-
-Then, analyze the content and summarize the key "Pain" and "Gain" themes found in the audio.
+        return `Please transcribe the following audio file in English. 
+        IMPORTANT: Please also provide timestamps and identify different speakers if there are multiple speakers. Format each segment with timing information.
+        Then analyze the key "Pain" and "Gain" themes in English.
 
 Format your response EXACTLY as follows:
 
@@ -180,13 +189,36 @@ SEGMENTS:
 (Continue with all segments...)
 
 TRANSCRIPTION:
-[Full transcription here]
+[Full transcription in English]
 
 ANALYSIS:
-Pain: [What problems, challenges, pain points, or difficulties were mentioned - be specific and detailed]
-Gain: [What solutions, benefits, positive outcomes, opportunities, or advantages were mentioned - be specific and detailed]
+Pain: [What problems, challenges, pain points, or difficulties were mentioned - be specific and detailed in English]
+Gain: [What solutions, benefits, positive outcomes, opportunities, or advantages were mentioned - be specific and detailed in English]
 
 LANGUAGE: [Detected primary language of the speaker]`;
+      } else {
+        // Default to English if not Thai
+        return `Please transcribe the following audio file in English. 
+        IMPORTANT: Please also provide timestamps and identify different speakers if there are multiple speakers. Format each segment with timing information.
+        Then analyze the key "Pain" and "Gain" themes in English.
+
+Format your response EXACTLY as follows:
+
+SEGMENTS:
+[00:00:00] Speaker 1: [First segment text]
+[00:00:03] Speaker 1: [Second segment text]
+[00:00:06] Speaker 2: [Third segment text if different speaker]
+(Continue with all segments...)
+
+TRANSCRIPTION:
+[Full transcription in English]
+
+ANALYSIS:
+Pain: [What problems, challenges, pain points, or difficulties were mentioned - be specific and detailed in English]
+Gain: [What solutions, benefits, positive outcomes, opportunities, or advantages were mentioned - be specific and detailed in English]
+
+LANGUAGE: [Detected primary language of the speaker]`;
+      }
     };
     
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
@@ -310,11 +342,9 @@ const transcribeWithGeminiLegacy = async (
         contents: [{
           parts: [
             {
-              text: `Please transcribe this audio file. The speaker is likely speaking in ${spokenLanguage}. ${
-                targetLanguage === 'Thai' ? 'Provide the transcription in Thai.' :
-                targetLanguage === 'English' ? 'Provide the transcription in English.' :
-                'Provide the transcription in both Thai and English.'
-              } Then briefly analyze any pain points and benefits mentioned.`
+              text: targetLanguage === 'Thai' 
+                ? `กรุณาถอดเสียงไฟล์เสียงนี้เป็นภาษาไทยทั้งหมด รวมถึงการวิเคราะห์ปัญหาและประโยชน์ที่กล่าวถึง ห้ามมีภาษาอังกฤษหรือคำแปลในวงเล็บ` 
+                : `Please transcribe this audio file in English. The speaker is likely speaking in ${spokenLanguage}. Provide the transcription in English and briefly analyze any pain points and benefits mentioned.`
             },
             {
               inline_data: {
@@ -579,7 +609,47 @@ const generateFormattedContent = (data: {
   gainSummary: string;
   transcriptionMethod: string;
 }): string => {
-  return `
+  const isThai = data.targetLanguage === 'Thai';
+  
+  if (isThai) {
+    return `
+รายงานการถอดเสียงเป็นข้อความ
+${'='.repeat(50)}
+
+ข้อมูลไฟล์:
+• ชื่อไฟล์: ${data.fileName}
+• วันที่: ${data.timestamp}
+• ระยะเวลา: ${data.duration}
+• ภาษาที่ตรวจพบ: ${data.language}
+• ภาษาที่พูด: ${data.spokenLanguage || 'ไม่ระบุ'}
+• ภาษาเป้าหมาย: ${data.targetLanguage || 'ไม่ระบุ'}
+• วิธีการถอดเสียง: ${data.transcriptionMethod}
+
+สถิติ:
+• จำนวนคำ: ${data.wordCount}
+• จำนวนตัวอักษร: ${data.charCount}
+
+${'='.repeat(50)}
+ข้อความถอดเสียงเต็ม
+${'='.repeat(50)}
+
+${data.fullTranscription}
+
+${'='.repeat(50)}
+การวิเคราะห์ปัญหาและประโยชน์
+${'='.repeat(50)}
+
+🔴 จุดเจ็บปวด:
+${data.painSummary}
+
+🟢 ประโยชน์และผลลัพธ์:
+${data.gainSummary}
+
+${'='.repeat(50)}
+สร้างเมื่อ ${data.timestamp}
+    `.trim();
+  } else {
+    return `
 AUDIO TRANSCRIPTION REPORT
 ${'='.repeat(50)}
 
@@ -614,7 +684,8 @@ ${data.gainSummary}
 
 ${'='.repeat(50)}
 Generated on ${data.timestamp}
-  `.trim();
+    `.trim();
+  }
 };
 
 // Helper function to convert date format from DD/MM/YYYY to YYYY-MM-DD
