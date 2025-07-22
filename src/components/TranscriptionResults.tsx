@@ -53,7 +53,7 @@ interface TranscriptionResult {
   fullTranscription: string;
   formattedContent: string;
   spokenLanguage?: string;
-  transcriptionTarget?: 'Thai' | 'English' | 'Both';
+  transcriptionTarget?: 'Thai' | 'English';
 }
 
 interface TranscriptionResultsProps {
