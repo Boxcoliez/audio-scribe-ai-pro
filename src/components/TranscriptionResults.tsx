@@ -37,6 +37,14 @@ import grFlag from "@/assets/flags/gr.png"; // Greek
 
 
 
+interface TranscriptionSegment {
+  timestamp: string;
+  speaker: string;
+  text: string;
+  startTime: number;
+  endTime: number;
+}
+
 interface TranscriptionResult {
   id: string;
   fileName: string;
@@ -54,6 +62,7 @@ interface TranscriptionResult {
   formattedContent: string;
   spokenLanguage?: string;
   transcriptionTarget?: 'Thai' | 'English' | 'Both';
+  segments?: TranscriptionSegment[];
 }
 
 interface TranscriptionResultsProps {
@@ -62,6 +71,7 @@ interface TranscriptionResultsProps {
 
 export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -73,9 +83,29 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
-      audioRef.current.play();
-      setIsPlaying(true);
+      // Add error handling for audio playback
+      audioRef.current.play().catch((error) => {
+        console.error('Audio play failed:', error);
+        setIsPlaying(false);
+        toast({
+          title: "Audio Playback Error",
+          description: "Unable to play audio file. The file may be corrupted or in an unsupported format.",
+          variant: "destructive"
+        });
+      });
     }
+  };
+
+  const seekToTime = (time: number) => {
+    if (!audioRef.current) return;
+    audioRef.current.currentTime = time;
+  };
+
+  const formatTime = (seconds: number): string => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   const copyToClipboard = async () => {
@@ -278,6 +308,17 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
             onEnded={() => setIsPlaying(false)}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
+            onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
+            onError={(e) => {
+              console.error('Audio loading error:', e);
+              setIsPlaying(false);
+              toast({
+                title: "Audio Error",
+                description: "Failed to load audio file",
+                variant: "destructive"
+              });
+            }}
+            preload="metadata"
           />
         </div>
 
@@ -329,34 +370,86 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
           </div>
         )}
 
-        {/* Transcription Text */}
+        {/* Interactive Transcript */}
+        {result.segments && result.segments.length > 0 && (
           <div className="space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <h3 className="font-medium">{t('transcriptionResults.transcriptionText')}</h3>
-              <div className="flex space-x-2">
+              <h3 className="font-medium flex items-center space-x-2">
+                <Play className="h-4 w-4" />
+                <span>Interactive Transcript</span>
+              </h3>
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <span>{formatTime(currentTime)} / {result.duration}</span>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
-                  onClick={copyToClipboard}
-                  className="flex-1 sm:flex-none"
+                  onClick={toggleAudioPlayback}
+                  className="h-8 w-8 p-0"
                 >
-                  <Copy className="h-4 w-4 mr-1" />
-                  <span className="hidden sm:inline">{t('transcription.copy')}</span>
-                  <span className="sm:hidden">Copy</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={downloadText}
-                  className="flex-1 sm:flex-none"
-                >
-                  <Download className="h-4 w-4 mr-1" />
-                  <span className="hidden sm:inline">{t('transcription.download')}</span>
-                  <span className="sm:hidden">Download</span>
+                  {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                 </Button>
               </div>
             </div>
-          
+            
+            <div className="bg-card border border-border/50 rounded-lg p-4 max-h-[400px] overflow-y-auto space-y-2">
+              {result.segments.map((segment, index) => (
+                <div
+                  key={index}
+                  className={`flex items-start space-x-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-muted/30 ${
+                    currentTime >= segment.startTime && currentTime < segment.endTime 
+                      ? 'bg-primary/5 border border-primary/20' 
+                      : ''
+                  }`}
+                  onClick={() => seekToTime(segment.startTime)}
+                >
+                  <div className="flex items-center space-x-2 min-w-0 flex-shrink-0">
+                    <div className="text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">
+                      {segment.timestamp}
+                    </div>
+                    <div className="px-2 py-1 text-xs font-medium bg-accent text-accent-foreground rounded">
+                      {segment.speaker}
+                    </div>
+                  </div>
+                  <div className="flex-1 text-sm text-foreground leading-relaxed">
+                    {segment.text}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Plain Text Transcript */}
+        <div className="space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <h3 className="font-medium flex items-center space-x-2">
+              <FileText className="h-4 w-4" />
+              <span>Plain Text Transcript</span>
+            </h3>
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={copyToClipboard}
+                className="flex-1 sm:flex-none"
+              >
+                <Copy className="h-4 w-4 mr-1" />
+                <span className="hidden sm:inline">{t('transcription.copy')}</span>
+                <span className="sm:hidden">Copy</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={downloadText}
+                className="flex-1 sm:flex-none"
+              >
+                <Download className="h-4 w-4 mr-1" />
+                <span className="hidden sm:inline">{t('transcription.download')}</span>
+                <span className="sm:hidden">Download</span>
+              </Button>
+            </div>
+          </div>
+        
           <Textarea
             value={result.text}
             readOnly
@@ -364,6 +457,7 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
             placeholder="Transcribed text will appear here..."
           />
         </div>
+
 
         {/* Statistics */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">

@@ -395,16 +395,23 @@ export const TranscriptionHistory = ({ onLoadTranscription, latestResult }: Tran
 
         // Reset audio to beginning and try to play
         audio.currentTime = 0;
-        audio.play().then(() => {
-          setIsPlaying(audioUrl);
-        }).catch((error) => {
-          console.error('Audio play failed:', error);
-          toast({
-            title: t('history.audioError'),
-            description: t('history.audioErrorDesc'),
-            variant: "destructive"
+        
+        // Add better error handling for audio playback
+        const playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            setIsPlaying(audioUrl);
+          }).catch((error) => {
+            console.error('Audio play failed:', error);
+            setIsPlaying(null);
+            toast({
+              title: t('history.audioError'),
+              description: t('history.audioErrorDesc'),
+              variant: "destructive"
+            });
           });
-        });
+        }
       }
     }
   };
