@@ -31,7 +31,7 @@ interface TranscriptionResult {
   fullTranscription: string;
   formattedContent: string;
   spokenLanguage?: string;
-  transcriptionTarget?: 'Thai' | 'English' | 'Both';
+  transcriptionTarget?: 'Thai' | 'English';
 }
 
 const Transcription = () => {
@@ -39,7 +39,7 @@ const Transcription = () => {
   const [isDark, setIsDark] = useState(false);
   const [transcriptionResult, setTranscriptionResult] = useState<TranscriptionResult | null>(null);
   const [spokenLanguage, setSpokenLanguage] = useState<string>('English');
-  const [targetLanguage, setTargetLanguage] = useState<'Thai' | 'English' | 'Both'>('English');
+  const [targetLanguage, setTargetLanguage] = useState<'Thai' | 'English'>('English');
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -146,12 +146,11 @@ const Transcription = () => {
                 <label className="text-sm font-medium">Transcription Target</label>
                 <select
                   value={targetLanguage}
-                  onChange={(e) => setTargetLanguage(e.target.value as 'Thai' | 'English' | 'Both')}
+                  onChange={(e) => setTargetLanguage(e.target.value as 'Thai' | 'English')}
                   className="w-full px-3 py-2 rounded-md border border-border bg-background text-sm"
                 >
                   <option value="English">English</option>
                   <option value="Thai">Thai</option>
-                  <option value="Both">Both Languages</option>
                 </select>
               </div>
             </div>
