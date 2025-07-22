@@ -153,8 +153,8 @@ TRANSCRIPTION:
 [ข้อความถอดเสียงเป็นภาษาไทย]
 
 ANALYSIS:
-Pain: [รายละเอียดปัญหาหรือความท้าทายเป็นภาษาไทย]
-Gain: [รายละเอียดประโยชน์หรือข้อดีเป็นภาษาไทย]
+Pain: [ปัญหา ความท้าทาย จุดเจ็บปวด หรือความยากลำบากใดที่ได้รับการกล่าวถึง - ให้ระบุเจาะจงและให้รายละเอียดเป็นภาษาไทย]
+Gain: [มีการกล่าวถึงวิธีแก้ปัญหา ประโยชน์ ผลลัพธ์เชิงบวก โอกาส หรือข้อดีใดบ้าง - ให้ระบุและให้รายละเอียดเป็นภาษาไทย]
 
 LANGUAGE: [ตรวจพบภาษาหลักของผู้พูด]`;
       } else if (targetLanguage === 'English') {
@@ -166,8 +166,8 @@ TRANSCRIPTION:
 [Full transcription in English]
 
 ANALYSIS:
-Pain: [Detailed pain points in English]
-Gain: [Detailed benefits in English]
+Pain: [What problems, challenges, pain points, or difficulties were mentioned - be specific and detailed in English]
+Gain: [What solutions, benefits, positive outcomes, opportunities, or advantages were mentioned - be specific and detailed in English]
 
 LANGUAGE: [Detected primary language of the speaker]`;
       } else {
@@ -180,8 +180,8 @@ TRANSCRIPTION:
 [Full transcription in English]
 
 ANALYSIS:
-Pain: [Detailed pain points in English]
-Gain: [Detailed benefits in English]
+Pain: [What problems, challenges, pain points, or difficulties were mentioned - be specific and detailed in English]
+Gain: [What solutions, benefits, positive outcomes, opportunities, or advantages were mentioned - be specific and detailed in English]
 
 LANGUAGE: [Detected primary language of the speaker]`;
       }
