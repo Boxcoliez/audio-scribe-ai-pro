@@ -14,7 +14,7 @@ interface TranscriptionResult {
   fullTranscription: string;
   formattedContent: string;
   spokenLanguage?: string;
-  transcriptionTarget?: 'Thai' | 'English' | 'Both';
+  transcriptionTarget?: 'Thai' | 'English';
 }
 
 interface AudioFile {
@@ -132,7 +132,7 @@ const transcribeWithGemini = async (
   audioFile: File, 
   apiKey: string,
   spokenLanguage: string = 'English',
-  targetLanguage: 'Thai' | 'English' | 'Both' = 'English'
+  targetLanguage: 'Thai' | 'English' = 'English'
 ): Promise<{
   transcription: string;
   painSummary: string;
@@ -144,31 +144,47 @@ const transcribeWithGemini = async (
     
     // Create structured prompt for Pain/Gain analysis
     const getPrompt = () => {
-      const basePrompt = `Please transcribe the following audio file. The speaker is likely speaking in ${spokenLanguage}.`;
-      
-      let transcriptionInstructions = '';
       if (targetLanguage === 'Thai') {
-        transcriptionInstructions = 'Provide the transcription in Thai language.';
-      } else if (targetLanguage === 'English') {
-        transcriptionInstructions = 'Provide the transcription in English language.';
-      } else {
-        transcriptionInstructions = 'Provide the transcription in both Thai and English languages, clearly separated.';
-      }
-      
-      return `${basePrompt} ${transcriptionInstructions}
+        return `กรุณาถอดเสียงไฟล์เสียงต่อไปนี้เป็นภาษาไทยทั้งหมด รวมถึงส่วนวิเคราะห์ "Pain" และ "Gain" ห้ามมีภาษาอังกฤษหรือคำแปลในวงเล็บ
 
-Then, analyze the content and summarize the key "Pain" and "Gain" themes found in the audio.
+จัดรูปแบบผลลัพธ์ดังนี้:
+
+TRANSCRIPTION:
+[ข้อความถอดเสียงเป็นภาษาไทย]
+
+ANALYSIS:
+Pain: [รายละเอียดปัญหาหรือความท้าทายเป็นภาษาไทย]
+Gain: [รายละเอียดประโยชน์หรือข้อดีเป็นภาษาไทย]
+
+LANGUAGE: [ตรวจพบภาษาหลักของผู้พูด]`;
+      } else if (targetLanguage === 'English') {
+        return `Please transcribe the following audio file in English. Then analyze the key "Pain" and "Gain" themes in English.
 
 Format your response EXACTLY as follows:
 
 TRANSCRIPTION:
-[Full transcription here]
+[Full transcription in English]
 
 ANALYSIS:
-Pain: [What problems, challenges, pain points, or difficulties were mentioned - be specific and detailed]
-Gain: [What solutions, benefits, positive outcomes, opportunities, or advantages were mentioned - be specific and detailed]
+Pain: [Detailed pain points in English]
+Gain: [Detailed benefits in English]
 
 LANGUAGE: [Detected primary language of the speaker]`;
+      } else {
+        // Default to English if not Thai
+        return `Please transcribe the following audio file in English. Then analyze the key "Pain" and "Gain" themes in English.
+
+Format your response EXACTLY as follows:
+
+TRANSCRIPTION:
+[Full transcription in English]
+
+ANALYSIS:
+Pain: [Detailed pain points in English]
+Gain: [Detailed benefits in English]
+
+LANGUAGE: [Detected primary language of the speaker]`;
+      }
     };
     
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
@@ -264,7 +280,7 @@ const transcribeWithGeminiLegacy = async (
   audioFile: File,
   apiKey: string,
   spokenLanguage: string = 'English',
-  targetLanguage: 'Thai' | 'English' | 'Both' = 'English'
+  targetLanguage: 'Thai' | 'English' = 'English'
 ): Promise<{
   transcription: string;
   painSummary: string;
@@ -283,11 +299,9 @@ const transcribeWithGeminiLegacy = async (
         contents: [{
           parts: [
             {
-              text: `Please transcribe this audio file. The speaker is likely speaking in ${spokenLanguage}. ${
-                targetLanguage === 'Thai' ? 'Provide the transcription in Thai.' :
-                targetLanguage === 'English' ? 'Provide the transcription in English.' :
-                'Provide the transcription in both Thai and English.'
-              } Then briefly analyze any pain points and benefits mentioned.`
+              text: targetLanguage === 'Thai' 
+                ? `กรุณาถอดเสียงไฟล์เสียงนี้เป็นภาษาไทยทั้งหมด รวมถึงการวิเคราะห์ปัญหาและประโยชน์ที่กล่าวถึง ห้ามมีภาษาอังกฤษหรือคำแปลในวงเล็บ` 
+                : `Please transcribe this audio file in English. The speaker is likely speaking in ${spokenLanguage}. Provide the transcription in English and briefly analyze any pain points and benefits mentioned.`
             },
             {
               inline_data: {
@@ -360,7 +374,7 @@ export const transcribeAudio = async (
   audioFile: AudioFile,
   onProgress: (progress: number) => void,
   spokenLanguage: string = 'English',
-  targetLanguage: 'Thai' | 'English' | 'Both' = 'English'
+  targetLanguage: 'Thai' | 'English' = 'English'
 ): Promise<TranscriptionResult> => {
   const apiKey = sessionStorage.getItem('gemini_api_key');
   
@@ -494,7 +508,7 @@ const generateFormattedContent = (data: {
   wordCount: number;
   charCount: number;
   spokenLanguage?: string;
-  targetLanguage?: 'Thai' | 'English' | 'Both';
+  targetLanguage?: 'Thai' | 'English';
   fullTranscription: string;
   painSummary: string;
   gainSummary: string;
