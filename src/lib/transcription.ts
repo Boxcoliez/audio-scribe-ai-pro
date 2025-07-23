@@ -156,7 +156,8 @@ const transcribeWithGemini = async (
     const getPrompt = () => {
       if (targetLanguage === 'Thai') {
         return `กรุณาถอดเสียงไฟล์เสียงต่อไปนี้เป็นภาษาไทยทั้งหมด 
-        สำคัญ: โปรดระบุเวลาและระบุผู้พูดที่แตกต่างกันหากมีผู้พูดหลายคน จัดรูปแบบแต่ละส่วนด้วยข้อมูลเวลา
+        สำคัญ: โปรดถอดทุกคำที่ได้ยิน ไม่ว่าเสียงจะสั้นหรือยาว ให้ความสำคัญกับคำและเสียงทุกอย่างที่มี
+        หากเป็นเสียงสั้น ให้ถอดคำที่ได้ยินแม้จะมีเพียงไม่กี่คำ
         รวมถึงส่วนวิเคราะห์ "Pain" และ "Gain" ห้ามมีภาษาอังกฤษหรือคำแปลในวงเล็บ
 
 จัดรูปแบบผลลัพธ์ดังนี้:
@@ -177,7 +178,8 @@ Gain: [มีการกล่าวถึงวิธีแก้ปัญห�
 LANGUAGE: [ตรวจพบภาษาหลักของผู้พูด]`;
       } else if (targetLanguage === 'English') {
         return `Please transcribe the following audio file in English. 
-        IMPORTANT: Please also provide timestamps and identify different speakers if there are multiple speakers. Format each segment with timing information.
+        IMPORTANT: Transcribe ALL audible words regardless of audio length. Pay special attention to short audio clips and capture every word spoken, even if brief.
+        For very short audio (under 15 seconds), focus on extracting any speech content present, no matter how brief.
         Then analyze the key "Pain" and "Gain" themes in English.
 
 Format your response EXACTLY as follows:
@@ -199,7 +201,8 @@ LANGUAGE: [Detected primary language of the speaker]`;
       } else {
         // Default to English if not Thai
         return `Please transcribe the following audio file in English. 
-        IMPORTANT: Please also provide timestamps and identify different speakers if there are multiple speakers. Format each segment with timing information.
+        IMPORTANT: Transcribe ALL audible words regardless of audio length. Pay special attention to short audio clips and capture every word spoken, even if brief.
+        For very short audio (under 15 seconds), focus on extracting any speech content present, no matter how brief.
         Then analyze the key "Pain" and "Gain" themes in English.
 
 Format your response EXACTLY as follows:
@@ -343,8 +346,8 @@ const transcribeWithGeminiLegacy = async (
           parts: [
             {
               text: targetLanguage === 'Thai' 
-                ? `กรุณาถอดเสียงไฟล์เสียงนี้เป็นภาษาไทยทั้งหมด รวมถึงการวิเคราะห์ปัญหาและประโยชน์ที่กล่าวถึง ห้ามมีภาษาอังกฤษหรือคำแปลในวงเล็บ` 
-                : `Please transcribe this audio file in English. The speaker is likely speaking in ${spokenLanguage}. Provide the transcription in English and briefly analyze any pain points and benefits mentioned.`
+                ? `กรุณาถอดเสียงไฟล์เสียงนี้เป็นภาษาไทยทั้งหมด โปรดถอดทุกคำที่ได้ยิน ไม่ว่าเสียงจะสั้นหรือยาว รวมถึงการวิเคราะห์ปัญหาและประโยชน์ที่กล่าวถึง ห้ามมีภาษาอังกฤษหรือคำแปลในวงเล็บ` 
+                : `Please transcribe this audio file in English. The speaker is likely speaking in ${spokenLanguage}. Transcribe ALL audible words regardless of audio length, especially for short clips under 15 seconds. Capture every word spoken, even if brief. Provide the transcription in English and briefly analyze any pain points and benefits mentioned.`
             },
             {
               inline_data: {
@@ -529,9 +532,13 @@ export const transcribeAudio = async (
 
   const transcribedText = transcriptionResult.transcription;
   
-  if (!transcribedText || transcribedText.length < 10) {
-    throw new Error('Transcription result is too short or empty. Please try with a clearer audio file.');
+  if (!transcribedText || transcribedText.trim().length === 0) {
+    throw new Error('Transcription result is empty. Please try with a clearer audio file or check if the audio contains speech.');
   }
+  
+  // Allow short transcriptions for brief audio clips
+  if (transcribedText.trim().length < 3) {
+    throw new Error('Transcription result is too short. Please ensure the audio contains clear speech.');
 
   const language = transcriptionResult.detectedLanguage || detectLanguage(transcribedText);
   
