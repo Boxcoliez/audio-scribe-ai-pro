@@ -267,6 +267,13 @@ LANGUAGE: [Detected primary language of the speaker]`;
     if (!responseText) {
       throw new Error('No transcription received from Gemini API');
     }
+    
+        // Check if API returned a ready message instead of transcription
+    if (responseText.includes('Okay, I\'m ready to transcribe') || 
+        responseText.includes('Please provide the audio file') ||
+        responseText.includes('I am ready to transcribe')) {
+      throw new Error('API ไม่สามารถถอดข้อความได้ - กรุณาลองใหม่อีกครั้ง');
+    }
 
     // Parse the structured response
     const sections = responseText.split(/(?:SEGMENTS:|TRANSCRIPTION:|ANALYSIS:|LANGUAGE:)/i);
@@ -376,6 +383,13 @@ const transcribeWithGeminiLegacy = async (
     
     if (!transcribedText) {
       throw new Error('No transcription received from Gemini API');
+    }
+    
+    // Check if API returned a ready message instead of transcription  
+    if (transcribedText.includes('Okay, I\'m ready to transcribe') || 
+        transcribedText.includes('Please provide the audio file') ||
+        transcribedText.includes('I am ready to transcribe')) {
+      throw new Error('API ไม่สามารถถอดข้อความได้ - กรุณาลองใหม่อีกครั้ง');
     }
 
     return {

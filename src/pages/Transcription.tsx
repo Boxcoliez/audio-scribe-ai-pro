@@ -41,6 +41,11 @@ interface TranscriptionResult {
   spokenLanguage?: string;
   transcriptionTarget?: 'Thai' | 'English' | 'Both';
   segments?: TranscriptionSegment[];
+  error?: {
+    message: string;
+    details?: string;
+    type?: string;
+  };
 }
 
 const Transcription = () => {
@@ -49,6 +54,7 @@ const Transcription = () => {
   const [transcriptionResult, setTranscriptionResult] = useState<TranscriptionResult | null>(null);
   const [spokenLanguage, setSpokenLanguage] = useState<string>('English');
   const [targetLanguage, setTargetLanguage] = useState<'Thai' | 'English' | 'Both'>('English');
+  const [lastAudioFile, setLastAudioFile] = useState<AudioFile | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -100,6 +106,7 @@ const Transcription = () => {
   };
 
   const handleTranscriptionStart = async (audioFile: AudioFile) => {
+    setLastAudioFile(audioFile); // Store for retry
     try {
       const result = await transcribeAudio(
         audioFile, 
@@ -113,7 +120,36 @@ const Transcription = () => {
       setTranscriptionResult(result);
     } catch (error) {
       console.error('Transcription failed:', error);
-      throw error;
+      
+      // Create error result to display in results panel
+      const errorResult: TranscriptionResult = {
+        id: Date.now().toString(),
+        fileName: audioFile.file.name,
+        duration: audioFile.duration ? `${Math.floor(audioFile.duration / 60)}:${Math.floor(audioFile.duration % 60).toString().padStart(2, '0')}` : '0:00',
+        language: spokenLanguage,
+        text: '',
+        timestamp: new Date().toISOString(),
+        audioUrl: audioFile.url,
+        wordCount: 0,
+        charCount: 0,
+        fullTranscription: '',
+        formattedContent: '',
+        spokenLanguage,
+        transcriptionTarget: targetLanguage,
+        error: {
+          message: error instanceof Error ? error.message : 'การถอดข้อความไม่สำเร็จ',
+          details: error instanceof Error ? error.stack : undefined,
+          type: 'transcription_failed'
+        }
+      };
+      
+      setTranscriptionResult(errorResult);
+    }
+  };
+
+  const handleRetry = () => {
+    if (lastAudioFile) {
+      handleTranscriptionStart(lastAudioFile);
     }
   };
 
@@ -177,7 +213,11 @@ const Transcription = () => {
 
             {/* Right Panel - Results */}
             <div className="animate-fade-in order-2" style={{ animationDelay: '0.2s' }}>
-              <TranscriptionResults result={transcriptionResult} />
+              <TranscriptionResults 
+                result={transcriptionResult} 
+                onRetry={handleRetry}
+                canRetry={!!lastAudioFile}
+              />
             </div>
           </div>
         </div>

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Download, Play, Pause, FileText, Globe, Clock, Hash } from "lucide-react";
+import { Copy, Download, Play, Pause, FileText, Globe, Clock, Hash, AlertTriangle, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -63,13 +63,20 @@ interface TranscriptionResult {
   spokenLanguage?: string;
   transcriptionTarget?: 'Thai' | 'English' | 'Both';
   segments?: TranscriptionSegment[];
+  error?: {
+    message: string;
+    details?: string;
+    type?: string;
+  };
 }
 
 interface TranscriptionResultsProps {
   result: TranscriptionResult | null;
+  onRetry?: () => void;
+  canRetry?: boolean;
 }
 
-export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
+export const TranscriptionResults = ({ result, onRetry, canRetry }: TranscriptionResultsProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -234,6 +241,117 @@ export const TranscriptionResults = ({ result }: TranscriptionResultsProps) => {
             <p className="text-muted-foreground">
               {t('transcriptionResults.uploadToStart')}
             </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Error state
+  if (result?.error) {
+    return (
+      <Card className="w-full h-full">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center space-x-2">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+                <span>การถอดข้อความไม่สำเร็จ</span>
+              </CardTitle>
+              <CardDescription>
+                กรุณาลองใหม่อีกครั้ง
+              </CardDescription>
+            </div>
+            <Badge variant="destructive">
+              ไม่สำเร็จ
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* File Information */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2 text-sm break-all">
+                <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <span className="font-medium">{result.fileName}</span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <Clock className="h-4 w-4 flex-shrink-0" />
+                <span>{result.duration}</span>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2 text-sm">
+                <Globe className="h-4 w-4 text-muted-foreground" />
+                <FlagImage language={result.language} />
+                <span className="font-medium">{result.language}</span>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {new Date(result.timestamp).toLocaleString()}
+              </div>
+            </div>
+          </div>
+
+          {/* Error Display */}
+          <div className="p-4 rounded-lg bg-destructive/5 border border-destructive/20">
+            <div className="flex items-start space-x-3">
+              <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+              <div className="space-y-2">
+                <h4 className="font-medium text-destructive">เกิดข้อผิดพลาด</h4>
+                <p className="text-sm text-muted-foreground">
+                  {result.error.message}
+                </p>
+                {result.error.details && (
+                  <details className="text-xs text-muted-foreground">
+                    <summary className="cursor-pointer hover:text-foreground">รายละเอียดข้อผิดพลาด</summary>
+                    <pre className="mt-2 p-2 bg-muted/50 rounded text-xs overflow-auto">
+                      {result.error.details}
+                    </pre>
+                  </details>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Language Settings Display */}
+          {(result.spokenLanguage || result.transcriptionTarget) && (
+            <div className="p-4 rounded-lg bg-muted/20 border border-border/50">
+              <h4 className="font-medium text-sm mb-2">การตั้งค่าการถอดข้อความ</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-muted-foreground">
+                {result.spokenLanguage && (
+                  <div>ภาษาที่พูด: <span className="font-medium">{result.spokenLanguage}</span></div>
+                )}
+                {result.transcriptionTarget && (
+                  <div>เป้าหมาย: <span className="font-medium">{result.transcriptionTarget}</span></div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Retry Button */}
+          {onRetry && canRetry && (
+            <div className="flex justify-center">
+              <Button 
+                onClick={onRetry}
+                variant="gradient"
+                size="lg"
+                className="w-full sm:w-auto"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                ลองใหม่อีกครั้ง
+              </Button>
+            </div>
+          )}
+
+          {/* Suggestions */}
+          <div className="p-4 rounded-lg bg-muted/10 border border-border/50">
+            <h4 className="font-medium text-sm mb-2">ข้อแนะนำ</h4>
+            <ul className="text-sm text-muted-foreground space-y-1">
+              <li>• ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต</li>
+              <li>• ตรวจสอบว่าไฟล์เสียงไม่เสียหาย</li>
+              <li>• ลองอัปโหลดไฟล์ที่มีขนาดเล็กกว่า</li>
+              <li>• ตรวจสอบ API Key ว่าถูกต้อง</li>
+            </ul>
           </div>
         </CardContent>
       </Card>
